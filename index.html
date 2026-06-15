@@ -67,7 +67,25 @@
             color: var(--text-color);
         }
 
-        /* Contenedor especial para el prefijo de cuenta */
+        /* Cabecera del banco con logo dinámico */
+        .banco-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .banco-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: contain;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
         .cuenta-container {
             display: flex;
             gap: 5px;
@@ -96,6 +114,20 @@
             color: var(--button-color);
         }
 
+        /* Estilo para el switch de guardar datos */
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .switch-group input {
+            width: auto;
+        }
+
         .btn-enviar {
             width: 100%;
             padding: 14px;
@@ -109,7 +141,6 @@
             margin-top: 10px;
         }
 
-        /* Clase para ocultar dinámicamente elementos */
         .oculto {
             display: none !important;
         }
@@ -140,6 +171,40 @@
     <div class="card">
         <h2>Datos de Recepción</h2>
         
+        <div class="banco-header">
+            <!-- El logo cambiará por JavaScript -->
+            <img src="https://logo.clearbit.com/bancodevenezuela.com" id="logo-visual" class="banco-logo" alt="Logo Banco">
+            <div style="flex-grow: 1;">
+                <label for="banco">Banco Destino:</label>
+                <select id="banco">
+                    <option value="0102">Banco de Venezuela (BDV)</option>
+                    <option value="0134">Banesco</option>
+                    <option value="0105">Mercantil Banco</option>
+                    <option value="0108">Provincial (BBVA)</option>
+                    <option value="0172">Bancamiga</option>
+                    <option value="0114">Bancaribe</option>
+                    <option value="0163">Banco del Tesoro</option>
+                    <option value="0115">Exterior</option>
+                    <option value="0128">Banco Caroní</option>
+                    <option value="0151">BFC Banco Fondo Común</option>
+                    <option value="0169">R4</option>
+                    <option value="0138">Banplus</option>
+                    <option value="0156">100% Banco</option>
+                    <option value="0157">DelSur</option>
+                    <option value="0166">Banco Agrícola de Venezuela</option>
+                    <option value="0174">Banfanb</option>
+                    <option value="0175">Banco Digital de los Trabajadores BDT</option>
+                    <option value="0177">Bancrecer</option>
+                    <option value="0191">BNC (Banco Nacional de Crédito)</option>
+                    <option value="0178">N58 Banco Digital</option>
+                    <option value="0137">Sofitasa</option>
+                    <option value="0146">Bangente</option>
+                    <option value="0104">Venezolano de Crédito</option>
+                    <option value="0171">Banco Activo</option>
+                </select>
+            </div>
+        </div>
+
         <div class="input-group">
             <label for="tipo-pago">Método de Recepción:</label>
             <select id="tipo-pago">
@@ -149,33 +214,8 @@
         </div>
 
         <div class="input-group">
-            <label for="banco">Banco Destino:</label>
-            <select id="banco">
-                <option value="0102">Banco de Venezuela (BDV)</option>
-                <option value="0134">Banesco</option>
-                <option value="0105">Mercantil Banco</option>
-                <option value="0108">Provincial (BBVA)</option>
-                <option value="0172">Bancamiga</option>
-                <option value="0114">Bancaribe</option>
-                <option value="0163">Banco del Tesoro</option>
-                <option value="0115">Exterior</option>
-                <option value="0128">Banco Caroní</option>
-                <option value="0151">BFC Banco Fondo Común</option>
-                <option value="0169">R4</option>
-                <option value="0138">Banplus</option>
-                <option value="0156">100% Banco</option>
-                <option value="0157">DelSur</option>
-                <option value="0166">Banco Agrícola de Venezuela</option>
-                <option value="0174">Banfanb</option>
-                <option value="0175">Banco Digital de los Trabajadores BDT</option>
-                <option value="0177">Bancrecer</option>
-                <option value="0191">BNC (Banco Nacional de Crédito)</option>
-                <option value="0178">N58 Banco Digital</option>
-                <option value="0137">Sofitasa</option>
-                <option value="0146">Bangente</option>
-                <option value="0104">Venezolano de Crédito</option>
-                <option value="0171">Banco Activo</option>
-            </select>
+            <label for="nombre">Nombre Completo del Beneficiario:</label>
+            <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
         </div>
 
         <div class="input-group">
@@ -197,6 +237,12 @@
                 <input type="text" id="cuenta-restante" placeholder="Coloque los 16 dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
         </div>
+
+        <!-- Guardar datos localmente -->
+        <label class="switch-group">
+            <input type="checkbox" id="guardar-datos" checked>
+            Recordar estos datos para mi próxima transacción
+        </label>
     </div>
 
     <button class="btn-enviar" id="btn-procesar">Continuar al Pago</button>
@@ -208,6 +254,34 @@
         const TASA_CAMBIO = 45.00; 
         document.getElementById('tasa-actual').innerText = TASA_CAMBIO.toFixed(2);
 
+        // Mapeo de logos usando dominios oficiales para obtener imágenes nítidas
+        const logosBancos = {
+            "0102": "https://logo.clearbit.com/bancodevenezuela.com",
+            "0134": "https://logo.clearbit.com/banesco.com",
+            "0105": "https://logo.clearbit.com/bancomercantil.com",
+            "0108": "https://logo.clearbit.com/bbvaprovincial.com",
+            "0172": "https://logo.clearbit.com/bancamiga.com",
+            "0114": "https://logo.clearbit.com/bancaribe.com.ve",
+            "0163": "https://logo.clearbit.com/bt.com.ve",
+            "0115": "https://logo.clearbit.com/bancoexterior.com",
+            "0128": "https://logo.clearbit.com/bancocaroni.com.ve",
+            "0151": "https://logo.clearbit.com/bfc.com.ve",
+            "0169": "https://logo.clearbit.com/r4.com.ve", // Fallback o URL representativa
+            "0138": "https://logo.clearbit.com/banplus.com",
+            "0156": "https://logo.clearbit.com/100banco.com.ve",
+            "0157": "https://logo.clearbit.com/delsur.com.ve",
+            "0166": "https://logo.clearbit.com/bav.com.ve",
+            "0174": "https://logo.clearbit.com/banfanb.com.ve",
+            "0175": "https://logo.clearbit.com/bdt.com.ve",
+            "0177": "https://logo.clearbit.com/bancrecer.com.ve",
+            "0191": "https://logo.clearbit.com/bnconline.com",
+            "0178": "https://logo.clearbit.com/n58bancodigital.com",
+            "0137": "https://logo.clearbit.com/sofitasa.com",
+            "0146": "https://logo.clearbit.com/bangente.com.ve",
+            "0104": "https://logo.clearbit.com/bvc.com.ve",
+            "0171": "https://logo.clearbit.com/bancoactivo.com"
+        };
+
         const inputPaypal = document.getElementById('paypal-enviar');
         const txtComision = document.getElementById('comision-fee');
         const txtNeto = document.getElementById('monto-neto');
@@ -215,10 +289,29 @@
         
         const selectTipoPago = document.getElementById('tipo-pago');
         const selectBanco = document.getElementById('banco');
+        const imgLogo = document.getElementById('logo-visual');
         const grupoTelefono = document.getElementById('grupo-telefono');
         const grupoCuenta = document.getElementById('grupo-cuenta');
         const prefijoBanco = document.getElementById('prefijo-banco');
         const btnProcesar = document.getElementById('btn-procesar');
+
+        // Cargar datos guardados previamente si existen
+        window.addEventListener('load', () => {
+            const datosGuardados = localStorage.getItem('tma_datos_pago');
+            if (datosGuardados) {
+                const datos = JSON.parse(datosGuardados);
+                selectBanco.value = datos.banco || "0102";
+                selectTipoPago.value = datos.tipo || "pago-movil";
+                document.getElementById('nombre').value = datos.nombre || "";
+                document.getElementById('cedula').value = datos.cedula || "";
+                document.getElementById('telefono').value = datos.telefono || "";
+                document.getElementById('cuenta-restante').value = datos.cuentaRestante || "";
+                
+                // Disparar eventos visuales para actualizar interfaz
+                selectTipoPago.dispatchEvent(new Event('change'));
+                selectBanco.dispatchEvent(new Event('change'));
+            }
+        });
 
         // Calculadora de montos
         inputPaypal.addEventListener('input', () => {
@@ -244,7 +337,7 @@
             inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2, maximumFractionDigits: 2})} Bs.`;
         });
 
-        // Lógica para alternar entre Pago Móvil y Transferencia
+        // Alternar entre Pago Móvil y Transferencia
         selectTipoPago.addEventListener('change', () => {
             if (selectTipoPago.value === 'pago-movil') {
                 grupoTelefono.classList.remove('oculto');
@@ -255,39 +348,54 @@
             }
         });
 
-        // Cambiar dinámicamente los primeros 4 números de cuenta según el banco
+        // Cambiar dinámicamente los números de cuenta y el LOGO del banco
         selectBanco.addEventListener('change', () => {
-            prefijoBanco.innerText = selectBanco.value;
+            const codigo = selectBanco.value;
+            prefijoBanco.innerText = codigo;
+            
+            // Actualizar logo usando el mapa de URLs. Si no existe, usa un icono genérico de banco
+            imgLogo.src = logosBancos[codigo] || "https://img.icons8.com/color/96/bank.png";
         });
 
-        // Botón procesar orden
+        // Procesar orden y guardar
         btnProcesar.addEventListener('click', () => {
             const tipo = selectTipoPago.value;
             const banco = selectBanco.value;
+            const nombre = document.getElementById('nombre').value;
             const cedula = document.getElementById('cedula').value;
             const monto = inputPaypal.value;
+            const guardar = document.getElementById('guardar-datos').checked;
 
-            if (!monto || !cedula) {
-                tg.showAlert("Por favor, rellene todos los campos básicos.");
+            if (!monto || !cedula || !nombre) {
+                tg.showAlert("Por favor, rellene el nombre, la cédula y el monto.");
                 return;
             }
 
-            if (tipo === 'pago-movil') {
-                const telefono = document.getElementById('telefono').value;
-                if (!telefono) {
-                    tg.showAlert("Por favor, introduzca el teléfono de Pago Móvil.");
-                    return;
-                }
-                tg.showAlert(`Orden registrada:\nPago Móvil Banco ${banco}\nCédula: ${cedula}\nTlf: ${telefono}\nMonto: $${monto}`);
-            } else {
-                const restante = document.getElementById('cuenta-restante').value;
-                if (restante.length !== 16) {
-                    tg.showAlert("El número de cuenta debe tener exactamente 16 dígitos (adicionales al código del banco).");
-                    return;
-                }
-                const cuentaCompleta = banco + restante;
-                tg.showAlert(`Orden registrada:\nTransferencia Banco ${banco}\nCédula: ${cedula}\nCuenta: ${cuentaCompleta}\nMonto: $${monto}`);
+            const telefono = document.getElementById('telefono').value;
+            const restante = document.getElementById('cuenta-restante').value;
+
+            if (tipo === 'pago-movil' && !telefono) {
+                tg.showAlert("Por favor, introduzca el teléfono de Pago Móvil.");
+                return;
             }
+            if (tipo === 'transferencia' && restante.length !== 16) {
+                tg.showAlert("La cuenta de transferencia debe tener exactamente 16 dígitos.");
+                return;
+            }
+
+            // Guardar datos si la casilla está marcada
+            if (guardar) {
+                const infoA_Guardar = {
+                    banco, tipo, nombre, cedula, telefono, cuentaRestante: restante
+                };
+                localStorage.setItem('tma_datos_pago', JSON.stringify(infoA_Guardar));
+            } else {
+                localStorage.removeItem('tma_datos_pago');
+            }
+
+            // Confirmación visual nativa
+            const destinoInfo = tipo === 'pago-movil' ? `Tlf: ${telefono}` : `Cuenta: ${banco}${restante}`;
+            tg.showAlert(`¡Orden Registrada!\nBeneficiario: ${nombre}\nCédula: ${cedula}\n${destinoInfo}\nMonto Bruto: $${monto}`);
         });
     </script>
 </body>
