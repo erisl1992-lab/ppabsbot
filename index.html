@@ -254,32 +254,32 @@
         const TASA_CAMBIO = 45.00; 
         document.getElementById('tasa-actual').innerText = TASA_CAMBIO.toFixed(2);
 
-        // Mapeo de logos usando dominios oficiales para obtener imágenes nítidas
+            // Mapeo de logos usando DuckDuckGo Icons (Servicio activo y gratuito)
         const logosBancos = {
-            "0102": "https://logo.clearbit.com/bancodevenezuela.com",
-            "0134": "https://logo.clearbit.com/banesco.com",
-            "0105": "https://logo.clearbit.com/bancomercantil.com",
-            "0108": "https://logo.clearbit.com/bbvaprovincial.com",
-            "0172": "https://logo.clearbit.com/bancamiga.com",
-            "0114": "https://logo.clearbit.com/bancaribe.com.ve",
-            "0163": "https://logo.clearbit.com/bt.com.ve",
-            "0115": "https://logo.clearbit.com/bancoexterior.com",
-            "0128": "https://logo.clearbit.com/bancocaroni.com.ve",
-            "0151": "https://logo.clearbit.com/bfc.com.ve",
-            "0169": "https://logo.clearbit.com/r4.com.ve", // Fallback o URL representativa
-            "0138": "https://logo.clearbit.com/banplus.com",
-            "0156": "https://logo.clearbit.com/100banco.com.ve",
-            "0157": "https://logo.clearbit.com/delsur.com.ve",
-            "0166": "https://logo.clearbit.com/bav.com.ve",
-            "0174": "https://logo.clearbit.com/banfanb.com.ve",
-            "0175": "https://logo.clearbit.com/bdt.com.ve",
-            "0177": "https://logo.clearbit.com/bancrecer.com.ve",
-            "0191": "https://logo.clearbit.com/bnconline.com",
-            "0178": "https://logo.clearbit.com/n58bancodigital.com",
-            "0137": "https://logo.clearbit.com/sofitasa.com",
-            "0146": "https://logo.clearbit.com/bangente.com.ve",
-            "0104": "https://logo.clearbit.com/bvc.com.ve",
-            "0171": "https://logo.clearbit.com/bancoactivo.com"
+            "0102": "https://external-content.duckduckgo.com/ip3/bancodevenezuela.com.ico",
+            "0134": "https://external-content.duckduckgo.com/ip3/banesco.com.ico",
+            "0105": "https://external-content.duckduckgo.com/ip3/bancomercantil.com.ico",
+            "0108": "https://external-content.duckduckgo.com/ip3/bbvaprovincial.com.ico",
+            "0172": "https://external-content.duckduckgo.com/ip3/bancamiga.com.ico",
+            "0114": "https://external-content.duckduckgo.com/ip3/bancaribe.com.ve.ico",
+            "0163": "https://external-content.duckduckgo.com/ip3/bt.com.ve.ico",
+            "0115": "https://external-content.duckduckgo.com/ip3/bancoexterior.com.ico",
+            "0128": "https://external-content.duckduckgo.com/ip3/bancocaroni.com.ve.ico",
+            "0151": "https://external-content.duckduckgo.com/ip3/bfc.com.ve.ico",
+            "0169": "https://img.icons8.com/color/96/bank.png", // R4 utiliza genérico temporal
+            "0138": "https://external-content.duckduckgo.com/ip3/banplus.com.ico",
+            "0156": "https://external-content.duckduckgo.com/ip3/100banco.com.ve.ico",
+            "0157": "https://external-content.duckduckgo.com/ip3/delsur.com.ve.ico",
+            "0166": "https://img.icons8.com/color/96/bank.png", // Agrícola genérico
+            "0174": "https://external-content.duckduckgo.com/ip3/banfanb.com.ve.ico",
+            "0175": "https://external-content.duckduckgo.com/ip3/bdt.com.ve.ico", // Nuevo BDT
+            "0177": "https://external-content.duckduckgo.com/ip3/bancrecer.com.ve.ico",
+            "0191": "https://external-content.duckduckgo.com/ip3/bnconline.com.ico",
+            "0178": "https://external-content.duckduckgo.com/ip3/n58bancodigital.com.ico",
+            "0137": "https://external-content.duckduckgo.com/ip3/sofitasa.com.ico",
+            "0146": "https://external-content.duckduckgo.com/ip3/bangente.com.ve.ico",
+            "0104": "https://external-content.duckduckgo.com/ip3/bvc.com.ve.ico",
+            "0171": "https://external-content.duckduckgo.com/ip3/bancoactivo.com.ico"
         };
 
         const inputPaypal = document.getElementById('paypal-enviar');
