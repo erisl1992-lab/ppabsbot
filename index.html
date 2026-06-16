@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PayPal a Bolívares</title>
-    <!-- SDK Oficial de Telegram -->
+    <title>Paygram - Registro y Cambio</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -25,6 +24,28 @@
             box-sizing: border-box;
         }
 
+        /* Barra superior para la hora y la bandera */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--card-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
         .card {
             background-color: var(--card-bg);
             padding: 16px;
@@ -39,14 +60,17 @@
             color: var(--button-color);
         }
 
-        .tasa-info {
-            font-size: 0.9rem;
-            color: var(--hint-color);
+        .input-group {
             margin-bottom: 15px;
         }
 
-        .input-group {
-            margin-bottom: 15px;
+        .cedula-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cedula-tipo {
+            width: 70px;
         }
 
         label {
@@ -67,39 +91,42 @@
             color: var(--text-color);
         }
 
-        /* Cabecera del banco con logo dinámico */
-        .banco-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-top: 5px;
         }
 
-        .banco-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: contain;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 2px;
-            box-sizing: border-box;
-        }
-
-        .cuenta-container {
-            display: flex;
-            gap: 5px;
-        }
-
-        .prefijo-cuenta {
-            width: 75px;
-            font-weight: bold;
+        .file-upload-btn {
+            display: block;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.05);
-            border: 1px solid #ccc;
+            background-color: rgba(0, 124, 176, 0.1);
+            color: var(--button-color);
+            padding: 12px;
+            border: 2px dashed var(--button-color);
             border-radius: 8px;
-            padding: 12px 0;
-            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
         }
 
         .resultado-box {
@@ -114,20 +141,7 @@
             color: var(--button-color);
         }
 
-        /* Estilo para el switch de guardar datos */
-        .switch-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            cursor: pointer;
-        }
-
-        .switch-group input {
-            width: auto;
-        }
-
+        /* Botón de enviar con soporte para logo Flexbox */
         .btn-enviar {
             width: 100%;
             padding: 14px;
@@ -135,10 +149,31 @@
             color: var(--button-text);
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Espacio entre el logo y el texto */
+            transition: background-color 0.2s;
+        }
+
+        /* Estilo específico para el botón de PayPal */
+        .btn-paypal {
+            background-color: #0070ba; /* Color azul oficial de PayPal */
+            color: #ffffff;
+        }
+
+        .btn-paypal:shadow {
+            box-shadow: 0 4px 12px rgba(0, 112, 186, 0.3);
+        }
+
+        .paypal-icon {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
         }
 
         .oculto {
@@ -148,252 +183,120 @@
 </head>
 <body>
 
-    <div class="card">
-        <h2>Calculadora de Cambio</h2>
-        <div class="tasa-info">Tasa de cambio: <span id="tasa-actual">45.00</span> Bs / $</div>
-
-        <div class="input-group">
-            <label for="paypal-enviar">Monto bruto que enviarás en PayPal ($):</label>
-            <input type="number" id="paypal-enviar" placeholder="Ej: 10" min="1" step="0.01">
-        </div>
-
-        <div class="resultado-box">
-            Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
-            <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
-        </div>
-
-        <div class="input-group" style="margin-top: 15px;">
-            <label>Vas a recibir en Bolívares:</label>
-            <input type="text" id="bs-recibir" readonly style="font-weight: bold; background-color: rgba(0,0,0,0.05); color: var(--text-color);">
+    <div class="top-bar">
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--button-color);">Paygram</div>
+        <div class="top-bar-right">
+            <span id="hora-venezuela">00:00:00</span>
+            <span style="font-size: 1.2rem; line-height: 1;">🇻🇪</span>
         </div>
     </div>
 
-    <div class="card">
-        <h2>Datos de Recepción</h2>
-        
-        <div class="banco-header">
-    <!-- El logo cambiará por JavaScript -->
-<img src="https://bancos-ve-logos.vercel.app/logos/0102.png" id="logo-visual" class="banco-logo" alt="Logo Banco" onerror="this.src='https://img.icons8.com/color/96/bank.png'">        <label for="banco">Banco Destino:</label>
+    <div id="seccion-registro">
+        <div class="card">
+            <h2>Verificación de Identidad (KYC)</h2>
+            <p style="font-size: 0.85rem; color: var(--hint-color); margin-bottom: 15px;">Por seguridad, requerimos una verificación única antes de permitir transacciones.</p>
+            
+            <div class="input-group">
+                <label for="reg-nombre">Nombre y Apellido Completo:</label>
+                <input type="text" id="reg-nombre" placeholder="Ej: Juan Pérez">
+            </div>
+
+            <div class="input-group">
+                <label>Documento de Identidad:</label>
+                <div class="cedula-container">
+                    <select id="reg-cedula-tipo" class="cedula-tipo">
+                        <option value="V">V</option>
+                        <option value="E">E</option>
+                        <option value="J">J</option>
+                    </select>
+                    <input type="text" id="reg-cedula" placeholder="12345678" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="reg-correo">Correo Electrónico:</label>
+                <input type="email" id="reg-correo" placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="input-group">
+                <label for="reg-telefono-user">Número de Teléfono Celular:</label>
+                <input type="tel" id="reg-telefono-user" placeholder="04121234567">
+            </div>
+
+            <div class="input-group">
+                <label>Foto de la Cédula de Identidad:</label>
+                <div class="file-upload">
+                    <span class="file-upload-btn" id="lbl-foto-cedula">📸 Subir foto de Cédula</span>
+                    <input type="file" id="foto-cedula" accept="image/*">
+                </div>
+                <img id="prev-cedula" class="preview-img" alt="Vista previa Cédula">
+            </div>
+
+            <div class="input-group">
+                <label>Foto Selfie con tu Cédula:</label>
+                <div class="file-upload">
+                    <span class="file-upload-btn" id="lbl-foto-selfie">🤳 Subir Foto Selfie</span>
+                    <input type="file" id="foto-selfie" accept="image/*">
+                </div>
+                <img id="prev-selfie" class="preview-img" alt="Vista previa Selfie">
+            </div>
+
+            <button class="btn-enviar" id="btn-verificar">Verificar y Continuar</button>
+        </div>
+    </div>
+
+    <div id="seccion-calculadora" class="oculto">
+        <div class="card">
+            <h2>Calculadora de Cambio</h2>
+            <div style="font-size: 0.9rem; margin-bottom: 10px;">Cliente verificado: <strong id="user-verificado" style="color: green;"></strong></div>
+            <div class="tasa-info">Tasa de cambio: 45.00 Bs / $</div>
+
+            <div class="input-group">
+                <label for="paypal-enviar">Monto bruto que enviarás en PayPal ($):</label>
+                <input type="number" id="paypal-enviar" placeholder="Ej: 10" min="1" step="0.01">
+            </div>
+
+            <div class="resultado-box">
+                Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
+                <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
+            </div>
+
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Vas a recibir en Bolívares:</label>
+                <input type="text" id="bs-recibir" readonly style="font-weight: bold; background-color: rgba(0,0,0,0.05); color: var(--text-color);">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Datos de Destino de los Bolívares</h2>
+            
+            <div class="input-group">
+                <label for="tipo-pago">Método de Recepción:</label>
+                <select id="tipo-pago">
+                    <option value="pago-movil">Pago Móvil</option>
+                    <option value="transferencia">Transferencia Bancaria</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="banco">Banco Destino:</label>
                 <select id="banco">
                     <option value="0102">Banco de Venezuela (BDV)</option>
                     <option value="0134">Banesco</option>
                     <option value="0105">Mercantil Banco</option>
                     <option value="0108">Provincial (BBVA)</option>
-                    <option value="0172">Bancamiga</option>
-                    <option value="0114">Bancaribe</option>
                     <option value="0163">Banco del Tesoro</option>
-                    <option value="0115">Exterior</option>
-                    <option value="0128">Banco Caroní</option>
-                    <option value="0151">BFC Banco Fondo Común</option>
-                    <option value="0169">R4</option>
-                    <option value="0138">Banplus</option>
-                    <option value="0156">100% Banco</option>
-                    <option value="0157">DelSur</option>
-                    <option value="0166">Banco Agrícola de Venezuela</option>
-                    <option value="0174">Banfanb</option>
                     <option value="0175">Banco Digital de los Trabajadores BDT</option>
-                    <option value="0177">Bancrecer</option>
-                    <option value="0191">BNC (Banco Nacional de Crédito)</option>
-                    <option value="0178">N58 Banco Digital</option>
-                    <option value="0137">Sofitasa</option>
-                    <option value="0146">Bangente</option>
-                    <option value="0104">Venezolano de Crédito</option>
-                    <option value="0171">Banco Activo</option>
                 </select>
             </div>
-        </div>
 
-        <div class="input-group">
-            <label for="tipo-pago">Método de Recepción:</label>
-            <select id="tipo-pago">
-                <option value="pago-movil">Pago Móvil</option>
-                <option value="transferencia">Transferencia Bancaria</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="nombre">Nombre Completo del Beneficiario:</label>
-            <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
-        </div>
-
-        <div class="input-group">
-            <label for="cedula">Cédula de Identidad:</label>
-            <input type="text" id="cedula" placeholder="V-12345678">
-        </div>
-
-        <!-- Grupo exclusivo de Pago Móvil -->
-        <div class="input-group" id="grupo-telefono">
-            <label for="telefono">Teléfono asociado al Pago Móvil:</label>
-            <input type="tel" id="telefono" placeholder="04121234567">
-        </div>
-
-        <!-- Grupo exclusivo de Transferencias -->
-        <div class="input-group oculto" id="grupo-cuenta">
-            <label for="cuenta-restante">Número de Cuenta Bancaria (20 dígitos):</label>
-            <div class="cuenta-container">
-                <div class="prefijo-cuenta" id="prefijo-banco">0102</div>
-                <input type="text" id="cuenta-restante" placeholder="Coloque los 16 dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <div class="input-group" id="grupo-telefono">
+                <label for="telefono-pago">Teléfono del Pago Móvil:</label>
+                <input type="tel" id="telefono-pago" placeholder="04121234567">
             </div>
-        </div>
 
-        <!-- Guardar datos localmente -->
-        <label class="switch-group">
-            <input type="checkbox" id="guardar-datos" checked>
-            Recordar estos datos para mi próxima transacción
-        </label>
-    </div>
-
-    <button class="btn-enviar" id="btn-procesar">Continuar al Pago</button>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const TASA_CAMBIO = 45.00; 
-        document.getElementById('tasa-actual').innerText = TASA_CAMBIO.toFixed(2);
-
-          // Mapeo de logos oficiales de la banca venezolana (Servidor Fintech dedicado)
-        const logosBancos = {
-            "0102": "https://bancos-ve-logos.vercel.app/logos/0102.png", // BDV
-            "0134": "https://bancos-ve-logos.vercel.app/logos/0134.png", // Banesco
-            "0105": "https://bancos-ve-logos.vercel.app/logos/0105.png", // Mercantil
-            "0108": "https://bancos-ve-logos.vercel.app/logos/0108.png", // Provincial
-            "0172": "https://bancos-ve-logos.vercel.app/logos/0172.png", // Bancamiga
-            "0114": "https://bancos-ve-logos.vercel.app/logos/0114.png", // Bancaribe
-            "0163": "https://bancos-ve-logos.vercel.app/logos/0163.png", // Banco del Tesoro
-            "0115": "https://bancos-ve-logos.vercel.app/logos/0115.png", // Exterior
-            "0128": "https://bancos-ve-logos.vercel.app/logos/0128.png", // Caroní
-            "0151": "https://bancos-ve-logos.vercel.app/logos/0151.png", // BFC
-            "0169": "https://bancos-ve-logos.vercel.app/logos/0169.png", // R4
-            "0138": "https://bancos-ve-logos.vercel.app/logos/0138.png", // Banplus
-            "0156": "https://bancos-ve-logos.vercel.app/logos/0156.png", // 100% Banco
-            "0157": "https://bancos-ve-logos.vercel.app/logos/0157.png", // DelSur
-            "0166": "https://bancos-ve-logos.vercel.app/logos/0166.png", // Agrícola
-            "0174": "https://bancos-ve-logos.vercel.app/logos/0174.png", // Banfanb
-            "0175": "https://bancos-ve-logos.vercel.app/logos/0175.png", // BDT
-            "0177": "https://bancos-ve-logos.vercel.app/logos/0177.png", // Bancrecer
-            "0191": "https://bancos-ve-logos.vercel.app/logos/0191.png", // BNC
-            "0178": "https://bancos-ve-logos.vercel.app/logos/0178.png", // N58
-            "0137": "https://bancos-ve-logos.vercel.app/logos/0137.png", // Sofitasa
-            "0146": "https://bancos-ve-logos.vercel.app/logos/0146.png", // Bangente
-            "0104": "https://bancos-ve-logos.vercel.app/logos/0104.png", // Venezolano de Crédito
-            "0171": "https://bancos-ve-logos.vercel.app/logos/0171.png"  // Banco Activo
-        };
-        const inputPaypal = document.getElementById('paypal-enviar');
-        const txtComision = document.getElementById('comision-fee');
-        const txtNeto = document.getElementById('monto-neto');
-        const inputBs = document.getElementById('bs-recibir');
-        
-        const selectTipoPago = document.getElementById('tipo-pago');
-        const selectBanco = document.getElementById('banco');
-        const imgLogo = document.getElementById('logo-visual');
-        const grupoTelefono = document.getElementById('grupo-telefono');
-        const grupoCuenta = document.getElementById('grupo-cuenta');
-        const prefijoBanco = document.getElementById('prefijo-banco');
-        const btnProcesar = document.getElementById('btn-procesar');
-
-        // Cargar datos guardados previamente si existen
-        window.addEventListener('load', () => {
-            const datosGuardados = localStorage.getItem('tma_datos_pago');
-            if (datosGuardados) {
-                const datos = JSON.parse(datosGuardados);
-                selectBanco.value = datos.banco || "0102";
-                selectTipoPago.value = datos.tipo || "pago-movil";
-                document.getElementById('nombre').value = datos.nombre || "";
-                document.getElementById('cedula').value = datos.cedula || "";
-                document.getElementById('telefono').value = datos.telefono || "";
-                document.getElementById('cuenta-restante').value = datos.cuentaRestante || "";
-                
-                // Disparar eventos visuales para actualizar interfaz
-                selectTipoPago.dispatchEvent(new Event('change'));
-                selectBanco.dispatchEvent(new Event('change'));
-            }
-        });
-
-        // Calculadora de montos
-        inputPaypal.addEventListener('input', () => {
-            const montoBruto = parseFloat(inputPaypal.value);
-            if (isNaN(montoBruto) || montoBruto <= 0) {
-                txtComision.innerText = "$0.00";
-                txtNeto.innerText = "$0.00";
-                inputBs.value = "0.00 Bs.";
-                return;
-            }
-            const comision = (montoBruto * 0.054) + 0.30;
-            const montoNeto = montoBruto - comision;
-
-            if (montoNeto <= 0) {
-                txtComision.innerText = `$${comision.toFixed(2)}`;
-                txtNeto.innerText = "$0.00";
-                inputBs.value = "Monto muy bajo";
-                return;
-            }
-            const bolivares = montoNeto * TASA_CAMBIO;
-            txtComision.innerText = `$${comision.toFixed(2)}`;
-            txtNeto.innerText = `$${montoNeto.toFixed(2)}`;
-            inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2, maximumFractionDigits: 2})} Bs.`;
-        });
-
-        // Alternar entre Pago Móvil y Transferencia
-        selectTipoPago.addEventListener('change', () => {
-            if (selectTipoPago.value === 'pago-movil') {
-                grupoTelefono.classList.remove('oculto');
-                grupoCuenta.classList.add('oculto');
-            } else {
-                grupoTelefono.classList.add('oculto');
-                grupoCuenta.classList.remove('oculto');
-            }
-        });
-
-        // Cambiar dinámicamente los números de cuenta y el LOGO del banco
-        selectBanco.addEventListener('change', () => {
-            const codigo = selectBanco.value;
-            prefijoBanco.innerText = codigo;
-            
-            // Actualizar logo usando el mapa de URLs. Si no existe, usa un icono genérico de banco
-            imgLogo.src = logosBancos[codigo] || "https://img.icons8.com/color/96/bank.png";
-        });
-
-        // Procesar orden y guardar
-        btnProcesar.addEventListener('click', () => {
-            const tipo = selectTipoPago.value;
-            const banco = selectBanco.value;
-            const nombre = document.getElementById('nombre').value;
-            const cedula = document.getElementById('cedula').value;
-            const monto = inputPaypal.value;
-            const guardar = document.getElementById('guardar-datos').checked;
-
-            if (!monto || !cedula || !nombre) {
-                tg.showAlert("Por favor, rellene el nombre, la cédula y el monto.");
-                return;
-            }
-
-            const telefono = document.getElementById('telefono').value;
-            const restante = document.getElementById('cuenta-restante').value;
-
-            if (tipo === 'pago-movil' && !telefono) {
-                tg.showAlert("Por favor, introduzca el teléfono de Pago Móvil.");
-                return;
-            }
-            if (tipo === 'transferencia' && restante.length !== 16) {
-                tg.showAlert("La cuenta de transferencia debe tener exactamente 16 dígitos.");
-                return;
-            }
-
-            // Guardar datos si la casilla está marcada
-            if (guardar) {
-                const infoA_Guardar = {
-                    banco, tipo, nombre, cedula, telefono, cuentaRestante: restante
-                };
-                localStorage.setItem('tma_datos_pago', JSON.stringify(infoA_Guardar));
-            } else {
-                localStorage.removeItem('tma_datos_pago');
-            }
-
-            // Confirmación visual nativa
-            const destinoInfo = tipo === 'pago-movil' ? `Tlf: ${telefono}` : `Cuenta: ${banco}${restante}`;
-            tg.showAlert(`¡Orden Registrada!\nBeneficiario: ${nombre}\nCédula: ${cedula}\n${destinoInfo}\nMonto Bruto: $${monto}`);
-        });
-    </script>
-</body>
-</html>
+            <div class="input-group oculto" id="grupo-cuenta">
+                <label for="cuenta-restante">Cuenta Bancaria (16 dígitos restantes):</label>
+                <div style="display: flex; gap: 5px;">
+                    <div id="prefijo-banco" style="padding: 12px; background: rgba(0,0,0,0.05); border: 1px solid #ccc; border-radius: 8px; font-weight: bold;">0102</div>
+                    <input type="text" id="cuenta-restante" placeholder="Dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/
