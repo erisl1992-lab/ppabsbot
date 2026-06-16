@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paygram - Calculadora Oficial</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=ARWaoyeQMqK6hQ0nhqiQF1qbNVKD1O5VXqO7hlKM50j7A8e_NtI4iP4jKp46JZ4DN8zDdkcbF2NBLCut&currency=USD"></script>
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #181818);
@@ -24,7 +25,6 @@
             box-sizing: border-box;
         }
 
-        /* Barra superior para el Saludo y Bloque de Telegram/Hora */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -106,7 +106,6 @@
             color: var(--text-color);
         }
 
-        /* Selector de Bruto / Neto */
         .toggle-group {
             display: flex;
             background-color: var(--bg-color);
@@ -147,35 +146,12 @@
             color: var(--button-color);
         }
 
-        .btn-enviar {
+        /* --- CONTENEDOR DE LA PASARELA PAYPAL --- */
+        #paypal-button-container {
+            margin-top: 20px;
             width: 100%;
-            padding: 14px;
-            background-color: #0070ba;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background-color 0.2s;
         }
 
-        .btn-enviar:active {
-            background-color: #005ea6;
-        }
-
-        .paypal-icon {
-            width: 22px;
-            height: 22px;
-            fill: #ffffff;
-        }
-
-        /* --- ESTILOS DE MANTENIMIENTO --- */
         .mantenimiento-card {
             text-align: center;
             padding: 30px 20px;
@@ -211,10 +187,7 @@
             justify-content: center;
             gap: 10px;
             text-decoration: none;
-        }
-
-        .btn-soporte:active {
-            background-color: #1d82b5;
+            box-sizing: border-box;
         }
 
         .oculto {
@@ -243,9 +216,6 @@
             En mantenimiento, retomaremos nuestras operaciones a las 6:00am (Hora de Venezuela).
         </div>
         <a href="https://t.me/paygramsupportvz" target="_blank" class="btn-soporte">
-            <svg style="width:22px; height:22px; fill:#ffffff;" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.62.15-.15 2.7-2.48 2.75-2.7.01-.03.01-.14-.06-.2-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.51.16.13.11.17.26.19.37z"/>
-            </svg>
             Contactar a soporte
         </a>
     </div>
@@ -338,12 +308,7 @@
             </div>
         </div>
 
-        <button class="btn-enviar" id="btn-procesar">
-            <svg class="paypal-icon" viewBox="0 0 24 24">
-                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.354a1.3 1.3 0 0 1 1.284-1.09h6.375c3.045 0 5.486.72 6.85 2.11 1.258 1.28 1.637 3.14 1.155 5.372-.676 3.127-2.693 5.47-5.617 6.488-1.398.487-3.132.703-5.22.703H8.344l-1.042 4.41a.243.243 0 0 1-.226.2z"/>
-            </svg>
-            Pagar con PayPal
-        </button>
+        <div id="paypal-button-container"></div>
     </div>
 
     <script>
@@ -352,6 +317,7 @@
 
         const TASA_CAMBIO = 45.00;
         let modoCalculo = 'bruto';
+        let montoBrutoGlobal = 0.00; // Variable global que PayPal leerá en tiempo real
 
         // --- SALUDO DINÁMICO ---
         function inicializarSaludo() {
@@ -376,31 +342,22 @@
         }
         inicializarSaludo();
 
-        // --- SISTEMA CRÍTICO DE HORARIOS Y MANTENIMIENTO ---
+        // --- CONTROL DE HORARIOS ---
         function verificarHorarioOperativo() {
             const ahora = new Date();
-            const diaSemana = ahora.getDay(); // 0 = Domingo, 6 = Sábado, 1-5 = Lun-Vie
+            const diaSemana = ahora.getDay();
             const hora = ahora.getHours();
             const minutos = ahora.getMinutes();
-            
-            // Convertir la hora actual a minutos absolutos del día para máxima precisión
             const tiempoEnMinutos = (hora * 60) + minutos;
 
             let estaBloqueado = false;
 
             if (diaSemana === 0 || diaSemana === 6) {
-                // SÁBADOS Y DOMINGOS: Abre de 9:00 AM (540 min) a 9:00 PM (1260 min)
-                if (tiempoEnMinutos < 540 || tiempoEnMinutos >= 1260) {
-                    estaBloqueado = true;
-                }
+                if (tiempoEnMinutos < 540 || tiempoEnMinutos >= 1260) estaBloqueado = true;
             } else {
-                // LUNES A VIERNES: Bloqueado de 10:00 PM (1320 min) a 6:00 AM (360 min)
-                if (tiempoEnMinutos >= 1320 || tiempoEnMinutos < 360) {
-                    estaBloqueado = true;
-                }
+                if (tiempoEnMinutos >= 1320 || tiempoEnMinutos < 360) estaBloqueado = true;
             }
 
-            // Aplicar manipulación de interfaz según el estado
             const panelMantenimiento = document.getElementById('pantalla-mantenimiento');
             const panelOperativo = document.getElementById('contenido-operativo');
 
@@ -425,20 +382,16 @@
             segundos = segundos < 10 ? '0' + segundos : segundos;
 
             document.getElementById('reloj-venezuela').innerText = `${horas}:${minutos}:${segundos}`;
-            
-            // Ejecutar revisión de horario en cada segundo
             verificarHorarioOperativo();
         }
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
 
-        // --- PREFIJO DE CUENTA BANCARIA ---
         function actualizarPrefijoBanco() {
             const selector = document.getElementById('banco');
             document.getElementById('prefijo-banco').innerText = selector.value;
         }
 
-        // --- CONMUTADOR DE MODO (BRUTO / NETO) ---
         function setModoCalculo(modo) {
             modoCalculo = modo;
             const btnBruto = document.getElementById('btn-bruto');
@@ -476,6 +429,7 @@
                 document.getElementById('comision-add').innerText = "$0.00";
                 document.getElementById('monto-bruto-total').innerText = "$0.00";
                 inputBs.value = "0.00 Bs.";
+                montoBrutoGlobal = 0.00;
                 return;
             }
 
@@ -487,6 +441,8 @@
                 document.getElementById('comision-fee').innerText = `$${comision.toFixed(2)}`;
                 document.getElementById('monto-neto').innerText = `$${montoNeto.toFixed(2)}`;
                 inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
+                
+                montoBrutoGlobal = valorInput; // El bruto es el input directo
             } else {
                 const montoBruto = (valorInput + 0.30) / (1 - 0.054);
                 const comisionACubrir = montoBruto - valorInput;
@@ -495,12 +451,12 @@
                 document.getElementById('comision-add').innerText = `$${comisionACubrir.toFixed(2)}`;
                 document.getElementById('monto-bruto-total').innerText = `$${montoBruto.toFixed(2)}`;
                 inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
+                
+                montoBrutoGlobal = montoBruto; // El bruto es la fórmula matemática inversa
             }
         }
-
         inputMonto.addEventListener('input', calcular);
 
-        // Cambiar vista según Método de Pago
         document.getElementById('tipo-pago').addEventListener('change', (e) => {
             if (e.target.value === 'pago-movil') {
                 document.getElementById('grupo-telefono').classList.remove('oculto');
@@ -511,14 +467,86 @@
             }
         });
 
-        // Acción al presionar Pagar
-        document.getElementById('btn-procesar').addEventListener('click', () => {
-            if(!inputMonto.value || inputMonto.value <= 0) {
-                tg.showAlert("Por favor, introduce un monto válido en dólares.");
-                return;
+        // =========================================================================
+        // 🚀 INTEGRACIÓN EJECUTABLE DE BOTONES DE PAYPAL SMART BUTTONS
+        // =========================================================================
+        paypal.Buttons({
+            // Se ejecuta antes de abrir la ventana; valida que haya dinero escrito
+            onClick: function(data, actions) {
+                if (montoBrutoGlobal <= 0) {
+                    tg.showAlert("Por favor, introduce un monto en dólares válido para poder activar el pago.");
+                    return actions.reject();
+                }
+                
+                // Validaciones de los campos bancarios de Venezuela
+                const tipoPago = document.getElementById('tipo-pago').value;
+                if(tipoPago === 'pago-movil' && !document.getElementById('telefono-pago').value) {
+                    tg.showAlert("Por favor, rellena el número telefónico para tu Pago Móvil.");
+                    return actions.reject();
+                }
+                if(tipoPago === 'transferencia' && !document.getElementById('cuenta-restante').value) {
+                    tg.showAlert("Por favor, introduce los dígitos de tu cuenta bancaria destino.");
+                    return actions.reject();
+                }
+                
+                return actions.resolve();
+            },
+            
+            // Crea la orden de cobro real hacia PayPal en base al monto bruto
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            currency_code: 'USD',
+                            value: montoBrutoGlobal.toFixed(2) // Envía el monto exacto con dos decimales
+                        },
+                        description: "Procesamiento de cambio seguro de divisas a través de Paygram"
+                    }]
+                });
+            },
+
+            // Se ejecuta cuando el cobro fue completado y aprobado en la cuenta de PayPal
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    
+                    // Extraer los datos ingresados en el formulario
+                    const tipoPago = document.getElementById('tipo-pago').value;
+                    const bancoCodigo = document.getElementById('banco').value;
+                    const bancoNombre = document.getElementById('banco').options[document.getElementById('banco').selectedIndex].text.split(' - ')[1];
+                    const telefono = document.getElementById('telefono-pago').value;
+                    const cuentaRestante = document.getElementById('cuenta-restante').value;
+                    const bsRecibir = inputBs.value;
+
+                    // Estructurar el reporte financiero que el cliente enviará de vuelta a tu bot
+                    const datosParaTelegram = {
+                        estatus: "PAGO_CONFIRMADO",
+                        id_transaccion: details.id,
+                        comprador: details.payer.name.given_name + " " + details.payer.name.surname,
+                        monto_usd: montoBrutoGlobal.toFixed(2),
+                        monto_bs: bsRecibir,
+                        metodo: tipoPago === 'pago-movil' ? '📱 Pago Móvil' : '🏦 Transferencia',
+                        banco: `${bancoCodigo} - ${bancoNombre}`,
+                        destino: tipoPago === 'pago-movil' ? telefono : `${bancoCodigo}${cuentaRestante}`
+                    };
+
+                    tg.showAlert("🎉 ¡Excelente, " + details.payer.name.given_name + "! Tu pago de $" + montoBrutoGlobal.toFixed(2) + " ha sido recibido con éxito por PayPal. Presiona Aceptar para cerrar la interfaz y enviar tus datos bancarios.");
+                    
+                    // Enviar los datos pesados directo al chat del bot usando la función nativa de Telegram
+                    tg.sendData(JSON.stringify(datosParaTelegram));
+                    tg.close();
+                });
+            },
+
+            // En caso de cancelaciones o caídas en la transacción
+            onCancel: function (data) {
+                tg.showAlert("⚠️ Has cancelado la operación de pago. Los fondos no han sido retenidos.");
+            },
+
+            onError: function (err) {
+                tg.showAlert("🚨 Ocurrió un error de conexión con la pasarela de PayPal. Verifica tu saldo o intenta de nuevo.");
+                console.error(err);
             }
-            tg.showAlert("¡Validación exitosa! Conectando con las pasarelas de pago de Paygram...");
-        });
+        }).render('#paypal-button-container'); // Inyectar los botones dentro de nuestro Div
     </script>
 </body>
 </html>
