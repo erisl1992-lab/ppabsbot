@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paygram - Calculadora Oficial</title>
-    <!-- SDK Oficial de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- SDK Oficial de PayPal en Modo LIVE y forzado a Español de Venezuela -->
     <script src="https://www.paypal.com/sdk/js?client-id=ATgqwZuE58Vd0FT7HkYVTrM4o7DUXb7trhlhPYaVc3MxQA8ybs-MUy1a0LhJ7ygFDFbJdRxjkzXatdCG&currency=USD&locale=es_VE"></script>
     <style>
         :root {
@@ -180,6 +178,7 @@
         #paypal-button-container {
             margin-top: 20px;
             width: 100%;
+            min-height: 150px; /* Asegura espacio visual para que PayPal dibuje los botones */
         }
 
         .btn-reportar-manual {
@@ -250,7 +249,6 @@
 </head>
 <body>
 
-    <!-- BARRA SUPERIOR DINÁMICA LOGUEADA -->
     <div class="top-bar">
         <div class="saludo-texto" id="saludo-usuario">¡Hola!</div>
         <div class="user-info-block">
@@ -264,7 +262,6 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE MANTENIMIENTO -->
     <div class="card mantenimiento-card oculto" id="pantalla-mantenimiento">
         <div class="mantenimiento-titulo">⚠️ Modo de Mantenimiento</div>
         <div class="mantenimiento-texto">
@@ -275,9 +272,7 @@
         </a>
     </div>
 
-    <!-- CONTENIDO OPERATIVO -->
     <div id="contenido-operativo">
-        <!-- CALCULADORA DE CAMBIO -->
         <div class="card">
             <h2>🧮 Calculadora de Cambio</h2>
             <div class="tasa-info" style="font-size: 0.95rem; margin-bottom: 15px; color: var(--hint-color);">Tasa de cambio: <strong style="color: #007cb0;">45.00 Bs / $</strong></div>
@@ -310,7 +305,6 @@
             </div>
         </div>
 
-        <!-- DATOS DE DESTINO -->
         <div class="card">
             <h2>📋 Datos de Destino</h2>
             
@@ -366,7 +360,6 @@
             </div>
         </div>
 
-        <!-- ⏳🏦 MENSAJE DE TIEMPO DE PROCESAMIENTO HÁBIL -->
         <div class="info-procesamiento">
             <span style="font-size: 1.5rem;">⏳</span>
             <div>
@@ -374,10 +367,8 @@
             </div>
         </div>
 
-        <!-- CONTENEDOR DE BOTONES INTELIGENTES DE PAYPAL -->
         <div id="paypal-button-container"></div>
 
-        <!-- BOTÓN DE RESPALDO MANUAL PARA TARJETAS -->
         <button class="btn-reportar-manual" id="btn-reporte-manual" onclick="reportarPagoTarjetaManual()">
             📩 Reportar Pago Exitoso con Tarjeta
         </button>
@@ -385,41 +376,52 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        
+        // Ejecutar expansión nativa de inmediato
+        try {
+            tg.ready();
+            tg.expand();
+        } catch(e) { console.error("Error iniciando WebApp:", e); }
 
         const TASA_CAMBIO = 45.00;
         let modoCalculo = 'bruto';
         let montoBrutoGlobal = 0.00;
         
-        // Variables globales para asegurar el tracking del cliente de Telegram
-        let telegramUserHandle = "Usuario Anónimo";
-        let telegramUserId = "000000";
+        let telegramUserHandle = "Usuario Activo";
+        let telegramUserId = "Desconocido";
 
-        // --- SALUDO Y ASIGNACIÓN DE USUARIO REFORZADA ---
+        // --- SALUDO SEGURO (PROTEGIDO CONTRA ERRORES DE LOGUEO) ---
         function inicializarSaludo() {
             const ahora = new Date();
             const hora = ahora.getHours();
-            let saludo = "¡Hola!";
+            let saludo = "¡Buenas tardes!";
 
             if (hora >= 6 && hora < 12) saludo = "¡Buenos días!";
             else if (hora >= 12 && hora < 19) saludo = "¡Buenas tardes!";
             else saludo = "¡Buenas noches!";
 
-            // Intentar extraer de forma estricta los datos nativos de Telegram
-            const user = tg.initDataUnsafe?.user;
             const badgeHandle = document.getElementById('telegram-handle');
 
-            if (user) {
-                telegramUserId = user.id;
-                telegramUserHandle = user.username ? `@${user.username}` : `${user.first_name}`;
-                document.getElementById('saludo-usuario').innerText = `${saludo}, ${user.first_name}!`;
-                badgeHandle.innerText = telegramUserHandle;
-            } else {
+            // Intento seguro con estructura 'try/catch' para evitar que se congele la pantalla si falla
+            try {
+                const user = tg.initDataUnsafe?.user;
+                if (user && user.first_name) {
+                    telegramUserId = user.id;
+                    telegramUserHandle = user.username ? `@${user.username}` : `${user.first_name}`;
+                    document.getElementById('saludo-usuario').innerText = `${saludo}, ${user.first_name}!`;
+                    badgeHandle.innerText = telegramUserHandle;
+                } else {
+                    document.getElementById('saludo-usuario').innerText = saludo;
+                    badgeHandle.innerText = "Paygram Cliente";
+                }
+            } catch (err) {
                 document.getElementById('saludo-usuario').innerText = saludo;
-                badgeHandle.innerText = "Modo Local / PC";
+                badgeHandle.innerText = "Paygram App";
             }
         }
-        inicializarSaludo();
+        
+        // Forzar inicialización al cargar el árbol DOM
+        window.addEventListener('DOMContentLoaded', inicializarSaludo);
 
         // --- CONTROL DE HORARIOS ---
         function verificarHorarioOperativo() {
@@ -495,7 +497,6 @@
             calcular();
         }
 
-        // --- MATEMÁTICA DE LA CALCULADORA ---
         const inputMonto = document.getElementById('paypal-monto');
         const inputBs = document.getElementById('bs-recibir');
 
@@ -546,9 +547,6 @@
             }
         });
 
-        // =========================================================================
-        // 📩 FUNCIÓN DE REPORTE MANUAL PARA TARJETAS / RESPALDO LOGUEADO
-        // =========================================================================
         function reportarPagoTarjetaManual() {
             if (montoBrutoGlobal <= 0) {
                 tg.showAlert("Introduce primero el monto de la operación.");
@@ -583,10 +581,12 @@
                 destino: tipoPago === 'pago-movil' ? telefono : `${bancoCodigo}${cuentaRestante}`
             };
 
-            tg.showAlert("👍 Reporte de tarjeta generado. Los datos bancarios se enviarán a tu chat de soporte en Paygram.");
-            
-            tg.sendData(JSON.stringify(datosParaTelegram));
-            tg.close();
+            try {
+                tg.sendData(JSON.stringify(datosParaTelegram));
+                tg.close();
+            } catch(err) {
+                tg.showAlert("Error al enviar los datos nativos. Escríbele a soporte directamente.");
+            }
         }
 
         // =========================================================================
@@ -619,7 +619,7 @@
                             currency_code: 'USD',
                             value: montoBrutoGlobal.toFixed(2)
                         },
-                        description: "Cambio Paygram asignado al usuario de Telegram: " + telegramUserHandle
+                        description: "Cambio Paygram de: " + telegramUserHandle
                     }]
                 });
             },
@@ -637,7 +637,7 @@
                     const datosParaTelegram = {
                         estatus: "PAGO_CONFIRMADO",
                         id_transaccion: details.id,
-                        comprador: details.payer.name.given_name + " " + details.payer.name.surname + " (Vía " + telegramUserHandle + ")",
+                        comprador: details.payer.name.given_name + " " + details.payer.name.surname + " (" + telegramUserHandle + ")",
                         monto_usd: montoBrutoGlobal.toFixed(2),
                         monto_bs: bsRecibir,
                         metodo: tipoPago === 'pago-movil' ? '📱 Pago Móvil' : '🏦 Transferencia',
@@ -645,20 +645,21 @@
                         destino: tipoPago === 'pago-movil' ? telefono : `${bancoCodigo}${cuentaRestante}`
                     };
 
-                    tg.showAlert("🎉 ¡Excelente! Tu pago ha sido recibido con éxito. Presiona Aceptar para cerrar e informar al bot.");
-                    
-                    tg.sendData(JSON.stringify(datosParaTelegram));
-                    tg.close();
+                    try {
+                        tg.sendData(JSON.stringify(datosParaTelegram));
+                        tg.close();
+                    } catch(e) {
+                        tg.showAlert("Pago procesado. Cierre la ventana manualmente e informe a administración.");
+                    }
                 });
             },
 
             onCancel: function (data) {
-                tg.showAlert("⚠️ Operación cancelada por el usuario.");
+                tg.showAlert("⚠️ Operación cancelada.");
             },
 
             onError: function (err) {
-                tg.showAlert("🚨 Error al conectar con PayPal. Asegúrate de tener saldo suficiente e intenta nuevamente.");
-                console.error(err);
+                tg.showAlert("🚨 Conexión caída de PayPal. Intente nuevamente.");
             }
         }).render('#paypal-button-container');
     </script>
