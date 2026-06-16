@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paygram - Calculadora Oficial</title>
-    <!-- SDK Oficial de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -25,7 +24,7 @@
             box-sizing: border-box;
         }
 
-        /* Barra superior para el Saludo y el Icono de Telegram */
+        /* Barra superior para el Saludo y Bloque de Telegram/Hora */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -38,6 +37,13 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: var(--text-color);
+        }
+
+        .user-info-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
         }
 
         .telegram-badge {
@@ -56,6 +62,13 @@
             fill: #24A1DE;
         }
 
+        .reloj-texto {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--hint-color);
+            padding-right: 8px;
+        }
+
         .card {
             background-color: var(--card-bg);
             padding: 16px;
@@ -68,9 +81,6 @@
             margin-top: 0;
             font-size: 1.2rem;
             color: var(--button-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .input-group {
@@ -137,26 +147,6 @@
             color: var(--button-color);
         }
 
-        /* Contenedor dinámico del logo bancario */
-        .banco-dinamico-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 8px;
-            background: rgba(0,0,0,0.15);
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .banco-logo-img {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #fff;
-            border: 1px solid #444;
-        }
-
         .btn-enviar {
             width: 100%;
             padding: 14px;
@@ -185,6 +175,48 @@
             fill: #ffffff;
         }
 
+        /* --- ESTILOS DE MANTENIMIENTO --- */
+        .mantenimiento-card {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 4px solid #ff9800;
+        }
+
+        .mantenimiento-titulo {
+            font-size: 1.4rem;
+            color: #ff9800;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .mantenimiento-texto {
+            font-size: 1rem;
+            color: var(--text-color);
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .btn-soporte {
+            width: 100%;
+            padding: 14px;
+            background-color: #24A1DE;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-soporte:active {
+            background-color: #1d82b5;
+        }
+
         .oculto {
             display: none !important;
         }
@@ -192,120 +224,127 @@
 </head>
 <body>
 
-    <!-- BARRA SUPERIOR DINÁMICA -->
     <div class="top-bar">
         <div class="saludo-texto" id="saludo-usuario">¡Hola!</div>
-        <div class="telegram-badge">
-            <svg class="telegram-icon" viewBox="0 0 24 24">
+        <div class="user-info-block">
+            <div class="telegram-badge">
+                <svg class="telegram-icon" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.62.15-.15 2.7-2.48 2.75-2.7.01-.03.01-.14-.06-.2-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.51.16.13.11.17.26.19.37z"/>
+                </svg>
+                <span id="telegram-handle" style="font-size: 0.9rem; font-weight: 600;">@usuario</span>
+            </div>
+            <div class="reloj-texto" id="reloj-venezuela">00:00:00</div>
+        </div>
+    </div>
+
+    <div class="card mantenimiento-card oculto" id="pantalla-mantenimiento">
+        <div class="mantenimiento-titulo">⚠️ Modo de Mantenimiento</div>
+        <div class="mantenimiento-texto">
+            En mantenimiento, retomaremos nuestras operaciones a las 6:00am (Hora de Venezuela).
+        </div>
+        <a href="https://t.me/paygramsupportvz" target="_blank" class="btn-soporte">
+            <svg style="width:22px; height:22px; fill:#ffffff;" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.62.15-.15 2.7-2.48 2.75-2.7.01-.03.01-.14-.06-.2-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.51.16.13.11.17.26.19.37z"/>
             </svg>
-            <span id="telegram-handle" style="font-size: 0.9rem; font-weight: 600;">@usuario</span>
-        </div>
+            Contactar a soporte
+        </a>
     </div>
 
-    <!-- CALCULADORA DE CAMBIO -->
-    <div class="card">
-        <h2>🧮 Calculadora de Cambio</h2>
-        <div class="tasa-info" style="font-size: 0.95rem; margin-bottom: 15px; color: var(--hint-color);">Tasa de cambio: <strong style="color: #007cb0;">45.00 Bs / $</strong></div>
+    <div id="contenido-operativo">
+        <div class="card">
+            <h2>🧮 Calculadora de Cambio</h2>
+            <div class="tasa-info" style="font-size: 0.95rem; margin-bottom: 15px; color: var(--hint-color);">Tasa de cambio: <strong style="color: #007cb0;">45.00 Bs / $</strong></div>
 
-        <!-- Selector Bruto / Neto -->
-        <label>Tipo de Cálculo:</label>
-        <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-bruto" onclick="setModoCalculo('bruto')">Monto Bruto ($ Enviar)</button>
-            <button class="toggle-btn" id="btn-neto" onclick="setModoCalculo('neto')">Monto Neto ($ Recibir)</button>
-        </div>
-
-        <div class="input-group">
-            <label id="label-monto" for="paypal-monto">Monto bruto que enviarás en PayPal ($):</label>
-            <input type="number" id="paypal-monto" placeholder="Ej: 100" min="1" step="0.01">
-        </div>
-
-        <div class="resultado-box">
-            <div id="box-calculo-bruto">
-                Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
-                <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
+            <label>Tipo de Cálculo:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" id="btn-bruto" onclick="setModoCalculo('bruto')">Monto Bruto ($ Enviar)</button>
+                <button class="toggle-btn" id="btn-neto" onclick="setModoCalculo('neto')">Monto Neto ($ Recibir)</button>
             </div>
-            <div id="box-calculo-neto" class="oculto">
-                Comisión a cubrir por el cliente: <span id="comision-add">$0.00</span><br>
-                <strong>Monto bruto que debe enviar: <span id="monto-bruto-total">$0.00</span></strong>
+
+            <div class="input-group">
+                <label id="label-monto" for="paypal-monto">Monto bruto que enviarás en PayPal ($):</label>
+                <input type="number" id="paypal-monto" placeholder="Ej: 100" min="1" step="0.01">
+            </div>
+
+            <div class="resultado-box">
+                <div id="box-calculo-bruto">
+                    Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
+                    <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
+                </div>
+                <div id="box-calculo-neto" class="oculto">
+                    Comisión a cubrir por el cliente: <span id="comision-add">$0.00</span><br>
+                    <strong>Monto bruto que debe enviar: <span id="monto-bruto-total">$0.00</span></strong>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Vas a recibir en Bolívares:</label>
+                <input type="text" id="bs-recibir" readonly style="font-weight: bold; background-color: rgba(255,255,255,0.05); color: var(--text-color); border: none;">
             </div>
         </div>
 
-        <div class="input-group" style="margin-top: 15px;">
-            <label>Vas a recibir en Bolívares:</label>
-            <input type="text" id="bs-recibir" readonly style="font-weight: bold; background-color: rgba(255,255,255,0.05); color: var(--text-color); border: none;">
-        </div>
-    </div>
-
-    <!-- DATOS DE DESTINO -->
-    <div class="card">
-        <h2>📋 Datos de Destino</h2>
-        
-        <div class="input-group">
-            <label for="tipo-pago">Método de Recepción:</label>
-            <select id="tipo-pago">
-                <option value="pago-movil">📱 Pago Móvil</option>
-                <option value="transferencia">🏦 Transferencia Bancaria</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="banco">Banco Destino:</label>
-            <select id="banco" onchange="actualizarBancoDinamico()">
-                <option value="0102">0102 - Banco de Venezuela</option>
-                <option value="0134">0134 - Banesco</option>
-                <option value="0105">0105 - Mercantil Banco</option>
-                <option value="0108">0108 - BBVA Provincial</option>
-                <option value="0172">0172 - Bancamiga</option>
-                <option value="0114">0114 - Bancaribe</option>
-                <option value="0163">0163 - Banco del Tesoro</option>
-                <option value="0115">0115 - Banco Exterior</option>
-                <option value="0128">0128 - Banco Caroní</option>
-                <option value="0151">0151 - Fondo Común (BFC)</option>
-                <option value="0169">0169 - Mi Banco</option>
-                <option value="0138">0138 - Banplus</option>
-                <option value="0156">0156 - 100% Banco</option>
-                <option value="0157">0157 - DelSur</option>
-                <option value="0166">0166 - Banco Agrícola de Venezuela</option>
-                <option value="0174">0174 - BANFANB</option>
-                <option value="0175">0175 - BDT (Banco Digital de los Trabajadores)</option>
-                <option value="0177">0177 - Bancrecer</option>
-                <option value="0191">0191 - BNC (Banco Nacional de Crédito)</option>
-                <option value="0178">0178 - N58 Banco Digital</option>
-                <option value="0137">0137 - Sofitasa</option>
-                <option value="0146">0146 - Bangente</option>
-                <option value="0104">0104 - Banco Venezolano de Crédito</option>
-                <option value="0171">0171 - Banco Activo</option>
-            </select>
+        <div class="card">
+            <h2>📋 Datos de Destino</h2>
             
-            <!-- Visor Dinámico de Marca de Banco -->
-            <div class="banco-dinamico-wrapper">
-                <img id="banco-logo-render" src="https://logo.clearbit.com/bancodevenezuela.com" class="banco-logo-img" alt="logo">
-                <span id="banco-nombre-render" style="font-size: 0.9rem; font-weight: 600;">Banco de Venezuela</span>
+            <div class="input-group">
+                <label for="tipo-pago">Método de Recepción:</label>
+                <select id="tipo-pago">
+                    <option value="pago-movil">📱 Pago Móvil</option>
+                    <option value="transferencia">🏦 Transferencia Bancaria</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="banco">Banco Destino:</label>
+                <select id="banco" onchange="actualizarPrefijoBanco()">
+                    <option value="0102">0102 - Banco de Venezuela</option>
+                    <option value="0134">0134 - Banesco</option>
+                    <option value="0105">0105 - Mercantil Banco</option>
+                    <option value="0108">0108 - BBVA Provincial</option>
+                    <option value="0172">0172 - Bancamiga</option>
+                    <option value="0114">0114 - Bancaribe</option>
+                    <option value="0163">0163 - Banco del Tesoro</option>
+                    <option value="0115">0115 - Banco Exterior</option>
+                    <option value="0128">0128 - Banco Caroní</option>
+                    <option value="0151">0151 - Fondo Común (BFC)</option>
+                    <option value="0169">0169 - Mi Banco</option>
+                    <option value="0138">0138 - Banplus</option>
+                    <option value="0156">0156 - 100% Banco</option>
+                    <option value="0157">0157 - DelSur</option>
+                    <option value="0166">0166 - Banco Agrícola de Venezuela</option>
+                    <option value="0174">0174 - BANFANB</option>
+                    <option value="0175">0175 - BDT (Banco Digital de los Trabajadores)</option>
+                    <option value="0177">0177 - Bancrecer</option>
+                    <option value="0191">0191 - BNC (Banco Nacional de Crédito)</option>
+                    <option value="0178">0178 - N58 Banco Digital</option>
+                    <option value="0137">0137 - Sofitasa</option>
+                    <option value="0146">0146 - Bangente</option>
+                    <option value="0104">0104 - Banco Venezolano de Crédito</option>
+                    <option value="0171">0171 - Banco Activo</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="grupo-telefono">
+                <label for="telefono-pago">Teléfono del Pago Móvil:</label>
+                <input type="tel" id="telefono-pago" placeholder="Ej: 04241234567">
+            </div>
+
+            <div class="input-group oculto" id="grupo-cuenta">
+                <label for="cuenta-restante">Cuenta Bancaria (16 dígitos restantes):</label>
+                <div style="display: flex; gap: 5px;">
+                    <div id="prefijo-banco" style="padding: 12px; background: rgba(255,255,255,0.07); border: 1px solid #444; border-radius: 8px; font-weight: bold;">0102</div>
+                    <input type="text" id="cuenta-restante" placeholder="Dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
             </div>
         </div>
 
-        <div class="input-group" id="grupo-telefono">
-            <label for="telefono-pago">Teléfono del Pago Móvil:</label>
-            <input type="tel" id="telefono-pago" placeholder="Ej: 04241234567">
-        </div>
-
-        <div class="input-group oculto" id="grupo-cuenta">
-            <label for="cuenta-restante">Cuenta Bancaria (16 dígitos restantes):</label>
-            <div style="display: flex; gap: 5px;">
-                <div id="prefijo-banco" style="padding: 12px; background: rgba(255,255,255,0.07); border: 1px solid #444; border-radius: 8px; font-weight: bold;">0102</div>
-                <input type="text" id="cuenta-restante" placeholder="Dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            </div>
-        </div>
+        <button class="btn-enviar" id="btn-procesar">
+            <svg class="paypal-icon" viewBox="0 0 24 24">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.354a1.3 1.3 0 0 1 1.284-1.09h6.375c3.045 0 5.486.72 6.85 2.11 1.258 1.28 1.637 3.14 1.155 5.372-.676 3.127-2.693 5.47-5.617 6.488-1.398.487-3.132.703-5.22.703H8.344l-1.042 4.41a.243.243 0 0 1-.226.2z"/>
+            </svg>
+            Pagar con PayPal
+        </button>
     </div>
-
-    <!-- BOTÓN OFICIAL DE PAGO CON LOGO DE PAYPAL -->
-    <button class="btn-enviar" id="btn-procesar">
-        <svg class="paypal-icon" viewBox="0 0 24 24">
-            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.354a1.3 1.3 0 0 1 1.284-1.09h6.375c3.045 0 5.486.72 6.85 2.11 1.258 1.28 1.637 3.14 1.155 5.372-.676 3.127-2.693 5.47-5.617 6.488-1.398.487-3.132.703-5.22.703H8.344l-1.042 4.41a.243.243 0 0 1-.226.2z"/>
-        </svg>
-        Pagar con PayPal
-    </button>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -313,34 +352,6 @@
 
         const TASA_CAMBIO = 45.00;
         let modoCalculo = 'bruto';
-
-        // --- MAPA DE LOGOS SUMINISTRADO ---
-        const baseLogosBancos = {
-            "0102": "https://logo.clearbit.com/bancodevenezuela.com",
-            "0134": "https://logo.clearbit.com/banesco.com",
-            "0105": "https://logo.clearbit.com/bancomercantil.com",
-            "0108": "https://logo.clearbit.com/bbvaprovincial.com",
-            "0172": "https://logo.clearbit.com/bancamiga.com",
-            "0114": "https://logo.clearbit.com/bancaribe.com.ve",
-            "0163": "https://logo.clearbit.com/bt.com.ve",
-            "0115": "https://logo.clearbit.com/bancoexterior.com",
-            "0128": "https://logo.clearbit.com/bancocaroni.com.ve",
-            "0151": "https://logo.clearbit.com/bfc.com.ve",
-            "0169": "https://logo.clearbit.com/r4.com.ve",
-            "0138": "https://logo.clearbit.com/banplus.com",
-            "0156": "https://logo.clearbit.com/100banco.com.ve",
-            "0157": "https://logo.clearbit.com/delsur.com.ve",
-            "0166": "https://logo.clearbit.com/bav.com.ve",
-            "0174": "https://logo.clearbit.com/banfanb.com.ve",
-            "0175": "https://logo.clearbit.com/bdt.com.ve",
-            "0177": "https://logo.clearbit.com/bancrecer.com.ve",
-            "0191": "https://logo.clearbit.com/bnconline.com",
-            "0178": "https://logo.clearbit.com/n58bancodigital.com",
-            "0137": "https://logo.clearbit.com/sofitasa.com",
-            "0146": "https://logo.clearbit.com/bangente.com.ve",
-            "0104": "https://logo.clearbit.com/bvc.com.ve",
-            "0171": "https://logo.clearbit.com/bancoactivo.com"
-        };
 
         // --- SALUDO DINÁMICO ---
         function inicializarSaludo() {
@@ -365,18 +376,66 @@
         }
         inicializarSaludo();
 
-        // --- MANEJO DINÁMICO DEL VISOR DE BANCOS ---
-        function actualizarBancoDinamico() {
-            const selector = document.getElementById('banco');
-            const codigoSelected = selector.value;
-            const nombreSelected = selector.options[selector.selectedIndex].text.split(' - ')[1];
-
-            // Renderizar logo y nombre abajo
-            document.getElementById('banco-logo-render').src = baseLogosBancos[codigoSelected] || '';
-            document.getElementById('banco-nombre-render').innerText = nombreSelected;
+        // --- SISTEMA CRÍTICO DE HORARIOS Y MANTENIMIENTO ---
+        function verificarHorarioOperativo() {
+            const ahora = new Date();
+            const diaSemana = ahora.getDay(); // 0 = Domingo, 6 = Sábado, 1-5 = Lun-Vie
+            const hora = ahora.getHours();
+            const minutos = ahora.getMinutes();
             
-            // Actualizar el prefijo de la cuenta corriente/ahorros por si acaso
-            document.getElementById('prefijo-banco').innerText = codigoSelected;
+            // Convertir la hora actual a minutos absolutos del día para máxima precisión
+            const tiempoEnMinutos = (hora * 60) + minutos;
+
+            let estaBloqueado = false;
+
+            if (diaSemana === 0 || diaSemana === 6) {
+                // SÁBADOS Y DOMINGOS: Abre de 9:00 AM (540 min) a 9:00 PM (1260 min)
+                if (tiempoEnMinutos < 540 || tiempoEnMinutos >= 1260) {
+                    estaBloqueado = true;
+                }
+            } else {
+                // LUNES A VIERNES: Bloqueado de 10:00 PM (1320 min) a 6:00 AM (360 min)
+                if (tiempoEnMinutos >= 1320 || tiempoEnMinutos < 360) {
+                    estaBloqueado = true;
+                }
+            }
+
+            // Aplicar manipulación de interfaz según el estado
+            const panelMantenimiento = document.getElementById('pantalla-mantenimiento');
+            const panelOperativo = document.getElementById('contenido-operativo');
+
+            if (estaBloqueado) {
+                panelMantenimiento.classList.remove('oculto');
+                panelOperativo.classList.add('oculto');
+            } else {
+                panelMantenimiento.classList.add('oculto');
+                panelOperativo.classList.remove('oculto');
+            }
+        }
+
+        // --- RELOJ EN TIEMPO REAL ---
+        function actualizarReloj() {
+            const ahora = new Date();
+            let horas = ahora.getHours();
+            let minutos = ahora.getMinutes();
+            let segundos = ahora.getSeconds();
+
+            horas = horas < 10 ? '0' + horas : horas;
+            minutos = minutos < 10 ? '0' + minutos : minutos;
+            segundos = segundos < 10 ? '0' + segundos : segundos;
+
+            document.getElementById('reloj-venezuela').innerText = `${horas}:${minutos}:${segundos}`;
+            
+            // Ejecutar revisión de horario en cada segundo
+            verificarHorarioOperativo();
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        // --- PREFIJO DE CUENTA BANCARIA ---
+        function actualizarPrefijoBanco() {
+            const selector = document.getElementById('banco');
+            document.getElementById('prefijo-banco').innerText = selector.value;
         }
 
         // --- CONMUTADOR DE MODO (BRUTO / NETO) ---
