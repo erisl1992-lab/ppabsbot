@@ -156,18 +156,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px; /* Espacio entre el logo y el texto */
+            gap: 10px;
             transition: background-color 0.2s;
         }
 
         /* Estilo específico para el botón de PayPal */
         .btn-paypal {
-            background-color: #0070ba; /* Color azul oficial de PayPal */
+            background-color: #0070ba;
             color: #ffffff;
-        }
-
-        .btn-paypal:shadow {
-            box-shadow: 0 4px 12px rgba(0, 112, 186, 0.3);
         }
 
         .paypal-icon {
@@ -194,109 +190,4 @@
     <div id="seccion-registro">
         <div class="card">
             <h2>Verificación de Identidad (KYC)</h2>
-            <p style="font-size: 0.85rem; color: var(--hint-color); margin-bottom: 15px;">Por seguridad, requerimos una verificación única antes de permitir transacciones.</p>
-            
-            <div class="input-group">
-                <label for="reg-nombre">Nombre y Apellido Completo:</label>
-                <input type="text" id="reg-nombre" placeholder="Ej: Juan Pérez">
-            </div>
-
-            <div class="input-group">
-                <label>Documento de Identidad:</label>
-                <div class="cedula-container">
-                    <select id="reg-cedula-tipo" class="cedula-tipo">
-                        <option value="V">V</option>
-                        <option value="E">E</option>
-                        <option value="J">J</option>
-                    </select>
-                    <input type="text" id="reg-cedula" placeholder="12345678" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label for="reg-correo">Correo Electrónico:</label>
-                <input type="email" id="reg-correo" placeholder="ejemplo@correo.com">
-            </div>
-
-            <div class="input-group">
-                <label for="reg-telefono-user">Número de Teléfono Celular:</label>
-                <input type="tel" id="reg-telefono-user" placeholder="04121234567">
-            </div>
-
-            <div class="input-group">
-                <label>Foto de la Cédula de Identidad:</label>
-                <div class="file-upload">
-                    <span class="file-upload-btn" id="lbl-foto-cedula">📸 Subir foto de Cédula</span>
-                    <input type="file" id="foto-cedula" accept="image/*">
-                </div>
-                <img id="prev-cedula" class="preview-img" alt="Vista previa Cédula">
-            </div>
-
-            <div class="input-group">
-                <label>Foto Selfie con tu Cédula:</label>
-                <div class="file-upload">
-                    <span class="file-upload-btn" id="lbl-foto-selfie">🤳 Subir Foto Selfie</span>
-                    <input type="file" id="foto-selfie" accept="image/*">
-                </div>
-                <img id="prev-selfie" class="preview-img" alt="Vista previa Selfie">
-            </div>
-
-            <button class="btn-enviar" id="btn-verificar">Verificar y Continuar</button>
-        </div>
-    </div>
-
-    <div id="seccion-calculadora" class="oculto">
-        <div class="card">
-            <h2>Calculadora de Cambio</h2>
-            <div style="font-size: 0.9rem; margin-bottom: 10px;">Cliente verificado: <strong id="user-verificado" style="color: green;"></strong></div>
-            <div class="tasa-info">Tasa de cambio: 45.00 Bs / $</div>
-
-            <div class="input-group">
-                <label for="paypal-enviar">Monto bruto que enviarás en PayPal ($):</label>
-                <input type="number" id="paypal-enviar" placeholder="Ej: 10" min="1" step="0.01">
-            </div>
-
-            <div class="resultado-box">
-                Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
-                <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
-            </div>
-
-            <div class="input-group" style="margin-top: 15px;">
-                <label>Vas a recibir en Bolívares:</label>
-                <input type="text" id="bs-recibir" readonly style="font-weight: bold; background-color: rgba(0,0,0,0.05); color: var(--text-color);">
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Datos de Destino de los Bolívares</h2>
-            
-            <div class="input-group">
-                <label for="tipo-pago">Método de Recepción:</label>
-                <select id="tipo-pago">
-                    <option value="pago-movil">Pago Móvil</option>
-                    <option value="transferencia">Transferencia Bancaria</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label for="banco">Banco Destino:</label>
-                <select id="banco">
-                    <option value="0102">Banco de Venezuela (BDV)</option>
-                    <option value="0134">Banesco</option>
-                    <option value="0105">Mercantil Banco</option>
-                    <option value="0108">Provincial (BBVA)</option>
-                    <option value="0163">Banco del Tesoro</option>
-                    <option value="0175">Banco Digital de los Trabajadores BDT</option>
-                </select>
-            </div>
-
-            <div class="input-group" id="grupo-telefono">
-                <label for="telefono-pago">Teléfono del Pago Móvil:</label>
-                <input type="tel" id="telefono-pago" placeholder="04121234567">
-            </div>
-
-            <div class="input-group oculto" id="grupo-cuenta">
-                <label for="cuenta-restante">Cuenta Bancaria (16 dígitos restantes):</label>
-                <div style="display: flex; gap: 5px;">
-                    <div id="prefijo-banco" style="padding: 12px; background: rgba(0,0,0,0.05); border: 1px solid #ccc; border-radius: 8px; font-weight: bold;">0102</div>
-                    <input type="text" id="cuenta-restante" placeholder="Dígitos restantes" maxlength="16" oninput="this.value = this.value.replace(/
+            <p style="font-size: 0.85rem; color: var(--hint-color);
