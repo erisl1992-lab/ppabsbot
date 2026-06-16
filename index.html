@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paygram - Calculadora Oficial</title>
+    <!-- SDK Oficial de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=ARWaoyeQMqK6hQ0nhqiQF1qbNVKD1O5VXqO7hlKM50j7A8e_NtI4iP4jKp46JZ4DN8zDdkcbF2NBLCut&currency=USD"></script>
+    <!-- SDK Oficial de PayPal en Modo LIVE y forzado a Español de Venezuela -->
+    <script src="https://www.paypal.com/sdk/js?client-id=ATgqwZuE58Vd0FT7HkYVTrM4o7DUXb7trhlhPYaVc3MxQA8ybs-MUy1a0LhJ7ygFDFbJdRxjkzXatdCG&currency=USD&locale=es_VE"></script>
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #181818);
@@ -146,7 +148,6 @@
             color: var(--button-color);
         }
 
-        /* --- CONTENEDOR DE LA PASARELA PAYPAL --- */
         #paypal-button-container {
             margin-top: 20px;
             width: 100%;
@@ -197,6 +198,7 @@
 </head>
 <body>
 
+    <!-- BARRA SUPERIOR DINÁMICA -->
     <div class="top-bar">
         <div class="saludo-texto" id="saludo-usuario">¡Hola!</div>
         <div class="user-info-block">
@@ -210,6 +212,7 @@
         </div>
     </div>
 
+    <!-- PANTALLA DE MANTENIMIENTO -->
     <div class="card mantenimiento-card oculto" id="pantalla-mantenimiento">
         <div class="mantenimiento-titulo">⚠️ Modo de Mantenimiento</div>
         <div class="mantenimiento-texto">
@@ -220,7 +223,9 @@
         </a>
     </div>
 
+    <!-- CONTENIDO OPERATIVO -->
     <div id="contenido-operativo">
+        <!-- CALCULADORA DE CAMBIO -->
         <div class="card">
             <h2>🧮 Calculadora de Cambio</h2>
             <div class="tasa-info" style="font-size: 0.95rem; margin-bottom: 15px; color: var(--hint-color);">Tasa de cambio: <strong style="color: #007cb0;">45.00 Bs / $</strong></div>
@@ -253,6 +258,7 @@
             </div>
         </div>
 
+        <!-- DATOS DE DESTINO -->
         <div class="card">
             <h2>📋 Datos de Destino</h2>
             
@@ -308,6 +314,7 @@
             </div>
         </div>
 
+        <!-- CONTENEDOR DE BOTONES INTELIGENTES DE PAYPAL -->
         <div id="paypal-button-container"></div>
     </div>
 
@@ -317,7 +324,7 @@
 
         const TASA_CAMBIO = 45.00;
         let modoCalculo = 'bruto';
-        let montoBrutoGlobal = 0.00; // Variable global que PayPal leerá en tiempo real
+        let montoBrutoGlobal = 0.00;
 
         // --- SALUDO DINÁMICO ---
         function inicializarSaludo() {
@@ -442,7 +449,7 @@
                 document.getElementById('monto-neto').innerText = `$${montoNeto.toFixed(2)}`;
                 inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
                 
-                montoBrutoGlobal = valorInput; // El bruto es el input directo
+                montoBrutoGlobal = valorInput;
             } else {
                 const montoBruto = (valorInput + 0.30) / (1 - 0.054);
                 const comisionACubrir = montoBruto - valorInput;
@@ -452,7 +459,7 @@
                 document.getElementById('monto-bruto-total').innerText = `$${montoBruto.toFixed(2)}`;
                 inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
                 
-                montoBrutoGlobal = montoBruto; // El bruto es la fórmula matemática inversa
+                montoBrutoGlobal = montoBruto;
             }
         }
         inputMonto.addEventListener('input', calcular);
@@ -468,17 +475,15 @@
         });
 
         // =========================================================================
-        // 🚀 INTEGRACIÓN EJECUTABLE DE BOTONES DE PAYPAL SMART BUTTONS
+        // 🚀 PROCESAMIENTO LIVE DE PAYPAL SMART BUTTONS EN ESPAÑOL
         // =========================================================================
         paypal.Buttons({
-            // Se ejecuta antes de abrir la ventana; valida que haya dinero escrito
             onClick: function(data, actions) {
                 if (montoBrutoGlobal <= 0) {
                     tg.showAlert("Por favor, introduce un monto en dólares válido para poder activar el pago.");
                     return actions.reject();
                 }
                 
-                // Validaciones de los campos bancarios de Venezuela
                 const tipoPago = document.getElementById('tipo-pago').value;
                 if(tipoPago === 'pago-movil' && !document.getElementById('telefono-pago').value) {
                     tg.showAlert("Por favor, rellena el número telefónico para tu Pago Móvil.");
@@ -492,24 +497,21 @@
                 return actions.resolve();
             },
             
-            // Crea la orden de cobro real hacia PayPal en base al monto bruto
             createOrder: function(data, actions) {
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
                             currency_code: 'USD',
-                            value: montoBrutoGlobal.toFixed(2) // Envía el monto exacto con dos decimales
+                            value: montoBrutoGlobal.toFixed(2)
                         },
                         description: "Procesamiento de cambio seguro de divisas a través de Paygram"
                     }]
                 });
             },
 
-            // Se ejecuta cuando el cobro fue completado y aprobado en la cuenta de PayPal
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
                     
-                    // Extraer los datos ingresados en el formulario
                     const tipoPago = document.getElementById('tipo-pago').value;
                     const bancoCodigo = document.getElementById('banco').value;
                     const bancoNombre = document.getElementById('banco').options[document.getElementById('banco').selectedIndex].text.split(' - ')[1];
@@ -517,7 +519,6 @@
                     const cuentaRestante = document.getElementById('cuenta-restante').value;
                     const bsRecibir = inputBs.value;
 
-                    // Estructurar el reporte financiero que el cliente enviará de vuelta a tu bot
                     const datosParaTelegram = {
                         estatus: "PAGO_CONFIRMADO",
                         id_transaccion: details.id,
@@ -529,24 +530,22 @@
                         destino: tipoPago === 'pago-movil' ? telefono : `${bancoCodigo}${cuentaRestante}`
                     };
 
-                    tg.showAlert("🎉 ¡Excelente, " + details.payer.name.given_name + "! Tu pago de $" + montoBrutoGlobal.toFixed(2) + " ha sido recibido con éxito por PayPal. Presiona Aceptar para cerrar la interfaz y enviar tus datos bancarios.");
+                    tg.showAlert("🎉 ¡Excelente, " + details.payer.name.given_name + "! Tu pago de $" + montoBrutoGlobal.toFixed(2) + " ha sido recibido con éxito. Presiona Aceptar para cerrar e informar al bot.");
                     
-                    // Enviar los datos pesados directo al chat del bot usando la función nativa de Telegram
                     tg.sendData(JSON.stringify(datosParaTelegram));
                     tg.close();
                 });
             },
 
-            // En caso de cancelaciones o caídas en la transacción
             onCancel: function (data) {
-                tg.showAlert("⚠️ Has cancelado la operación de pago. Los fondos no han sido retenidos.");
+                tg.showAlert("⚠️ Operación cancelada por el usuario.");
             },
 
             onError: function (err) {
-                tg.showAlert("🚨 Ocurrió un error de conexión con la pasarela de PayPal. Verifica tu saldo o intenta de nuevo.");
+                tg.showAlert("🚨 Error al conectar con PayPal. Asegúrate de tener saldo suficiente e intenta nuevamente.");
                 console.error(err);
             }
-        }).render('#paypal-button-container'); // Inyectar los botones dentro de nuestro Div
+        }).render('#paypal-button-container');
     </script>
 </body>
 </html>
