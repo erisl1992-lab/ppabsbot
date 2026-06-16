@@ -68,6 +68,9 @@
             margin-top: 0;
             font-size: 1.2rem;
             color: var(--button-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .input-group {
@@ -93,6 +96,34 @@
             color: var(--text-color);
         }
 
+        /* Selector de Bruto / Neto */
+        .toggle-group {
+            display: flex;
+            background-color: var(--bg-color);
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: none;
+            color: var(--hint-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--button-color);
+            color: var(--button-text);
+        }
+
         .resultado-box {
             background-color: rgba(0, 124, 176, 0.15);
             padding: 12px;
@@ -104,6 +135,26 @@
 
         .resultado-box strong {
             color: var(--button-color);
+        }
+
+        /* Contenedor dinámico del logo bancario */
+        .banco-dinamico-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            background: rgba(0,0,0,0.15);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .banco-logo-img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+            border: 1px solid #444;
         }
 
         .btn-enviar {
@@ -145,7 +196,6 @@
     <div class="top-bar">
         <div class="saludo-texto" id="saludo-usuario">¡Hola!</div>
         <div class="telegram-badge">
-            <!-- Icono Oficial de Telegram SVG -->
             <svg class="telegram-icon" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.62.15-.15 2.7-2.48 2.75-2.7.01-.03.01-.14-.06-.2-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.51.16.13.11.17.26.19.37z"/>
             </svg>
@@ -155,17 +205,30 @@
 
     <!-- CALCULADORA DE CAMBIO -->
     <div class="card">
-        <h2>Calculadora de Cambio</h2>
+        <h2>🧮 Calculadora de Cambio</h2>
         <div class="tasa-info" style="font-size: 0.95rem; margin-bottom: 15px; color: var(--hint-color);">Tasa de cambio: <strong style="color: #007cb0;">45.00 Bs / $</strong></div>
 
+        <!-- Selector Bruto / Neto -->
+        <label>Tipo de Cálculo:</label>
+        <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-bruto" onclick="setModoCalculo('bruto')">Monto Bruto ($ Enviar)</button>
+            <button class="toggle-btn" id="btn-neto" onclick="setModoCalculo('neto')">Monto Neto ($ Recibir)</button>
+        </div>
+
         <div class="input-group">
-            <label for="paypal-enviar">Monto bruto que enviarás en PayPal ($):</label>
-            <input type="number" id="paypal-enviar" placeholder="Ej: 10" min="1" step="0.01">
+            <label id="label-monto" for="paypal-monto">Monto bruto que enviarás en PayPal ($):</label>
+            <input type="number" id="paypal-monto" placeholder="Ej: 100" min="1" step="0.01">
         </div>
 
         <div class="resultado-box">
-            Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
-            <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
+            <div id="box-calculo-bruto">
+                Comisión PayPal (5.4% + 0.30): <span id="comision-fee">$0.00</span><br>
+                <strong>Monto neto que recibimos: <span id="monto-neto">$0.00</span></strong>
+            </div>
+            <div id="box-calculo-neto" class="oculto">
+                Comisión a cubrir por el cliente: <span id="comision-add">$0.00</span><br>
+                <strong>Monto bruto que debe enviar: <span id="monto-bruto-total">$0.00</span></strong>
+            </div>
         </div>
 
         <div class="input-group" style="margin-top: 15px;">
@@ -176,7 +239,7 @@
 
     <!-- DATOS DE DESTINO -->
     <div class="card">
-        <h2>Datos de Recepción en Venezuela</h2>
+        <h2>📋 Datos de Destino</h2>
         
         <div class="input-group">
             <label for="tipo-pago">Método de Recepción:</label>
@@ -188,13 +251,38 @@
 
         <div class="input-group">
             <label for="banco">Banco Destino:</label>
-            <select id="banco">
-                <option value="0102">Banco de Venezuela (BDV)</option>
-                <option value="0134">Banesco</option>
-                <option value="0105">Mercantil Banco</option>
-                <option value="0108">Provincial (BBVA)</option>
-                <option value="0163">Banco del Tesoro</option>
+            <select id="banco" onchange="actualizarBancoDinamico()">
+                <option value="0102">0102 - Banco de Venezuela</option>
+                <option value="0134">0134 - Banesco</option>
+                <option value="0105">0105 - Mercantil Banco</option>
+                <option value="0108">0108 - BBVA Provincial</option>
+                <option value="0172">0172 - Bancamiga</option>
+                <option value="0114">0114 - Bancaribe</option>
+                <option value="0163">0163 - Banco del Tesoro</option>
+                <option value="0115">0115 - Banco Exterior</option>
+                <option value="0128">0128 - Banco Caroní</option>
+                <option value="0151">0151 - Fondo Común (BFC)</option>
+                <option value="0169">0169 - Mi Banco</option>
+                <option value="0138">0138 - Banplus</option>
+                <option value="0156">0156 - 100% Banco</option>
+                <option value="0157">0157 - DelSur</option>
+                <option value="0166">0166 - Banco Agrícola de Venezuela</option>
+                <option value="0174">0174 - BANFANB</option>
+                <option value="0175">0175 - BDT (Banco Digital de los Trabajadores)</option>
+                <option value="0177">0177 - Bancrecer</option>
+                <option value="0191">0191 - BNC (Banco Nacional de Crédito)</option>
+                <option value="0178">0178 - N58 Banco Digital</option>
+                <option value="0137">0137 - Sofitasa</option>
+                <option value="0146">0146 - Bangente</option>
+                <option value="0104">0104 - Banco Venezolano de Crédito</option>
+                <option value="0171">0171 - Banco Activo</option>
             </select>
+            
+            <!-- Visor Dinámico de Marca de Banco -->
+            <div class="banco-dinamico-wrapper">
+                <img id="banco-logo-render" src="https://logo.clearbit.com/bancodevenezuela.com" class="banco-logo-img" alt="logo">
+                <span id="banco-nombre-render" style="font-size: 0.9rem; font-weight: 600;">Banco de Venezuela</span>
+            </div>
         </div>
 
         <div class="input-group" id="grupo-telefono">
@@ -224,61 +312,136 @@
         tg.expand();
 
         const TASA_CAMBIO = 45.00;
+        let modoCalculo = 'bruto';
 
-        // --- SALUDO DINÁMICO Y DETECCIÓN DE USUARIO ---
+        // --- MAPA DE LOGOS SUMINISTRADO ---
+        const baseLogosBancos = {
+            "0102": "https://logo.clearbit.com/bancodevenezuela.com",
+            "0134": "https://logo.clearbit.com/banesco.com",
+            "0105": "https://logo.clearbit.com/bancomercantil.com",
+            "0108": "https://logo.clearbit.com/bbvaprovincial.com",
+            "0172": "https://logo.clearbit.com/bancamiga.com",
+            "0114": "https://logo.clearbit.com/bancaribe.com.ve",
+            "0163": "https://logo.clearbit.com/bt.com.ve",
+            "0115": "https://logo.clearbit.com/bancoexterior.com",
+            "0128": "https://logo.clearbit.com/bancocaroni.com.ve",
+            "0151": "https://logo.clearbit.com/bfc.com.ve",
+            "0169": "https://logo.clearbit.com/r4.com.ve",
+            "0138": "https://logo.clearbit.com/banplus.com",
+            "0156": "https://logo.clearbit.com/100banco.com.ve",
+            "0157": "https://logo.clearbit.com/delsur.com.ve",
+            "0166": "https://logo.clearbit.com/bav.com.ve",
+            "0174": "https://logo.clearbit.com/banfanb.com.ve",
+            "0175": "https://logo.clearbit.com/bdt.com.ve",
+            "0177": "https://logo.clearbit.com/bancrecer.com.ve",
+            "0191": "https://logo.clearbit.com/bnconline.com",
+            "0178": "https://logo.clearbit.com/n58bancodigital.com",
+            "0137": "https://logo.clearbit.com/sofitasa.com",
+            "0146": "https://logo.clearbit.com/bangente.com.ve",
+            "0104": "https://logo.clearbit.com/bvc.com.ve",
+            "0171": "https://logo.clearbit.com/bancoactivo.com"
+        };
+
+        // --- SALUDO DINÁMICO ---
         function inicializarSaludo() {
             const ahora = new Date();
             const hora = ahora.getHours();
             let saludo = "¡Hola!";
 
-            if (hora >= 6 && hora < 12) {
-                saludo = "¡Buenos días!";
-            } else if (hora >= 12 && hora < 19) {
-                saludo = "¡Buenas tardes!";
-            } else {
-                saludo = "¡Buenas noches!";
-            }
+            if (hora >= 6 && hora < 12) saludo = "¡Buenos días!";
+            else if (hora >= 12 && hora < 19) saludo = "¡Buenas tardes!";
+            else saludo = "¡Buenas noches!";
 
             document.getElementById('saludo-usuario').innerText = saludo;
 
-            // Leer datos del cliente desde Telegram WebApp SDK
             const user = tg.initDataUnsafe?.user;
             const badgeHandle = document.getElementById('telegram-handle');
 
             if (user) {
-                if (user.username) {
-                    badgeHandle.innerText = `@${user.username}`;
-                } else {
-                    badgeHandle.innerText = `ID: ${user.id}`;
-                }
+                badgeHandle.innerText = user.username ? `@${user.username}` : `ID: ${user.id}`;
             } else {
                 badgeHandle.innerText = "Modo de Prueba";
             }
         }
         inicializarSaludo();
 
+        // --- MANEJO DINÁMICO DEL VISOR DE BANCOS ---
+        function actualizarBancoDinamico() {
+            const selector = document.getElementById('banco');
+            const codigoSelected = selector.value;
+            const nombreSelected = selector.options[selector.selectedIndex].text.split(' - ')[1];
+
+            // Renderizar logo y nombre abajo
+            document.getElementById('banco-logo-render').src = baseLogosBancos[codigoSelected] || '';
+            document.getElementById('banco-nombre-render').innerText = nombreSelected;
+            
+            // Actualizar el prefijo de la cuenta corriente/ahorros por si acaso
+            document.getElementById('prefijo-banco').innerText = codigoSelected;
+        }
+
+        // --- CONMUTADOR DE MODO (BRUTO / NETO) ---
+        function setModoCalculo(modo) {
+            modoCalculo = modo;
+            const btnBruto = document.getElementById('btn-bruto');
+            const btnNeto = document.getElementById('btn-neto');
+            const boxBruto = document.getElementById('box-calculo-bruto');
+            const boxNeto = document.getElementById('box-calculo-neto');
+            const labelMonto = document.getElementById('label-monto');
+
+            if (modo === 'bruto') {
+                btnBruto.classList.add('active');
+                btnNeto.classList.remove('active');
+                boxBruto.classList.remove('oculto');
+                boxNeto.classList.add('oculto');
+                labelMonto.innerText = "Monto bruto que enviarás en PayPal ($):";
+            } else {
+                btnBruto.classList.remove('active');
+                btnNeto.classList.add('active');
+                boxBruto.classList.add('oculto');
+                boxNeto.classList.remove('oculto');
+                labelMonto.innerText = "Monto neto que deseas recibir ($):";
+            }
+            calcular();
+        }
+
         // --- MATEMÁTICA DE LA CALCULADORA ---
-        const inputPaypal = document.getElementById('paypal-enviar');
+        const inputMonto = document.getElementById('paypal-monto');
         const inputBs = document.getElementById('bs-recibir');
 
-        inputPaypal.addEventListener('input', () => {
-            const montoBruto = parseFloat(inputPaypal.value);
-            if (isNaN(montoBruto) || montoBruto <= 0) {
+        function calcular() {
+            const valorInput = parseFloat(inputMonto.value);
+            
+            if (isNaN(valorInput) || valorInput <= 0) {
                 document.getElementById('comision-fee').innerText = "$0.00";
                 document.getElementById('monto-neto').innerText = "$0.00";
+                document.getElementById('comision-add').innerText = "$0.00";
+                document.getElementById('monto-bruto-total').innerText = "$0.00";
                 inputBs.value = "0.00 Bs.";
                 return;
             }
-            const comision = (montoBruto * 0.054) + 0.30;
-            const montoNeto = montoBruto - comision;
-            const bolivares = montoNeto * TASA_CAMBIO;
 
-            document.getElementById('comision-fee').innerText = `$${comision.toFixed(2)}`;
-            document.getElementById('monto-neto').innerText = `$${montoNeto.toFixed(2)}`;
-            inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
-        });
+            if (modoCalculo === 'bruto') {
+                const comision = (valorInput * 0.054) + 0.30;
+                const montoNeto = Math.max(0, valorInput - comision);
+                const bolivares = montoNeto * TASA_CAMBIO;
 
-        // Alternar vistas de Pago Móvil y Transferencia Bancaria
+                document.getElementById('comision-fee').innerText = `$${comision.toFixed(2)}`;
+                document.getElementById('monto-neto').innerText = `$${montoNeto.toFixed(2)}`;
+                inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
+            } else {
+                const montoBruto = (valorInput + 0.30) / (1 - 0.054);
+                const comisionACubrir = montoBruto - valorInput;
+                const bolivares = valorInput * TASA_CAMBIO;
+
+                document.getElementById('comision-add').innerText = `$${comisionACubrir.toFixed(2)}`;
+                document.getElementById('monto-bruto-total').innerText = `$${montoBruto.toFixed(2)}`;
+                inputBs.value = `${bolivares.toLocaleString("es-VE", {minimumFractionDigits: 2})} Bs.`;
+            }
+        }
+
+        inputMonto.addEventListener('input', calcular);
+
+        // Cambiar vista según Método de Pago
         document.getElementById('tipo-pago').addEventListener('change', (e) => {
             if (e.target.value === 'pago-movil') {
                 document.getElementById('grupo-telefono').classList.remove('oculto');
@@ -289,13 +452,9 @@
             }
         });
 
-        document.getElementById('banco').addEventListener('change', (e) => {
-            document.getElementById('prefijo-banco').innerText = e.target.value;
-        });
-
         // Acción al presionar Pagar
         document.getElementById('btn-procesar').addEventListener('click', () => {
-            if(!inputPaypal.value || inputPaypal.value <= 0) {
+            if(!inputMonto.value || inputMonto.value <= 0) {
                 tg.showAlert("Por favor, introduce un monto válido en dólares.");
                 return;
             }
