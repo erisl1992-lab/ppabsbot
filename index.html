@@ -148,12 +148,27 @@
             color: var(--button-color);
         }
 
+        /* --- ESTILO DEL MENSAJE DE PROCESAMIENTO --- */
+        .info-procesamiento {
+            background-color: rgba(255, 152, 0, 0.1);
+            border: 1px dashed #ff9800;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ffb74d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         #paypal-button-container {
             margin-top: 20px;
             width: 100%;
         }
 
-        /* --- BOTÓN DE RESPALDO PARA REPORTAR TARJETAS --- */
         .btn-reportar-manual {
             width: 100%;
             padding: 14px;
@@ -240,7 +255,7 @@
     <div class="card mantenimiento-card oculto" id="pantalla-mantenimiento">
         <div class="mantenimiento-titulo">⚠️ Modo de Mantenimiento</div>
         <div class="mantenimiento-texto">
-            En mantenimiento, retomaremos nuestras operations a las 6:00am (Hora de Venezuela).
+            En mantenimiento, retomaremos nuestras operaciones a las 6:00am (Hora de Venezuela).
         </div>
         <a href="https://t.me/paygramsupportvz" target="_blank" class="btn-soporte">
             Contactar a soporte
@@ -338,6 +353,14 @@
             </div>
         </div>
 
+        <!-- ⏳🏦 MENSAJE DE TIEMPO DE PROCESAMIENTO HÁBIL -->
+        <div class="info-procesamiento">
+            <span style="font-size: 1.5rem;">⏳</span>
+            <div>
+                Los pagos son procesados en un plazo de **12 a 48 horas hábiles** directamente a su cuenta bancaria. 🏦
+            </div>
+        </div>
+
         <!-- CONTENEDOR DE BOTONES INTELIGENTES DE PAYPAL -->
         <div id="paypal-button-container"></div>
 
@@ -384,7 +407,7 @@
             const diaSemana = ahora.getDay();
             const hora = ahora.getHours();
             const minutos = ahora.getMinutes();
-            const tiempoEnMinutos = (hora * 60) + minutes;
+            const tiempoEnMinutos = (hora * 60) + minutos;
 
             let estaBloqueado = false;
 
@@ -410,11 +433,11 @@
         function actualizarReloj() {
             const ahora = new Date();
             let horas = ahora.getHours();
-            let minutos = machinedMin = ahora.getMinutes();
+            let minutos = ahora.getMinutes();
             let segundos = ahora.getSeconds();
 
             horas = horas < 10 ? '0' + horas : horas;
-            minutos = minutos < 10 ? '0' + minutos : minutos;
+            minutos = minutos < 10 ? '0' + minutos : minutes;
             segundos = segundos < 10 ? '0' + segundos : segundos;
 
             document.getElementById('reloj-venezuela').innerText = `${horas}:${minutos}:${segundos}`;
@@ -529,7 +552,6 @@
             const bancoNombre = document.getElementById('banco').options[document.getElementById('banco').selectedIndex].text.split(' - ')[1];
             const bsRecibir = inputBs.value;
 
-            // Empaquetamos los datos simulando la confirmación para el bot
             const datosParaTelegram = {
                 estatus: "PAGO_CONFIRMADO",
                 id_transaccion: "TARJETA_REPORTE_MANUAL",
