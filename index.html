@@ -314,12 +314,29 @@
                 <select id="reg-banco">
                     <option value="">-- Seleccione un Banco --</option>
                     <option value="BANESCO">0134 - BANESCO</option>
+                    <option value="VENEZOLANO DE CREDITO">0104 - VENEZOLANO DE CREDITO</option>
+                    <option value="100% BANCO">0156 - 100% BANCO</option>
+                    <option value="BANCARIBE">0114 - BANCARIBE</option>
+                    <option value="BANCO ACTIVO">0171 - BANCO ACTIVO</option>
+                    <option value="BANCO CARONI">0128 - BANCO CARONI</option>
+                    <option value="BANFANB">0177 - BANFANB</option>
+                    <option value="BANGENTE">0146 - BANGENTE</option>
+                    <option value="BDT BANCO DIGITAL DE LOS TRABAJADORES">0175 - BANCO DIGITAL DE LOS TRABAJADORES</option>
+                    <option value="BANCO DEL TESORO">0163 - BANCO DEL TESORO</option>
                     <option value="BANCO DE VENEZUELA">0102 - BANCO DE VENEZUELA</option>
+                    <option value="N58 BANCO DIGITAL">0178 - N58 BANCO DIGITAL</option>
                     <option value="MERCANTIL">0105 - MERCANTIL</option>
+                    <option value="R4 BANCO">0169 - R4 BANCO</option>
                     <option value="PROVINCIAL">0108 - BBVA PROVINCIAL</option>
                     <option value="BNC">0191 - BANCO NACIONAL DE CRÉDITO</option>
                     <option value="BANPLUS">0174 - BANPLUS</option>
                     <option value="BANCAMIGA">0172 - BANCAMIGA</option>
+                    <option value="DEL SUR BANCO UNIVERSAL">0157 - DEL SUR BANCO</option>
+                    <option value="BANCO EXTERIOR">0115 - BANCO EXTERIOR</option>
+                    <option value="BANCO PLAZA">0138 - BANCO PLAZA</option>
+                    <option value="SOFITASA">0137 - SOFITASA</option>
+                    <option value="BFC BANCO FONDO COMUN">0151 - BANCO FONDO COMUN</option>
+                    <option value="BANCRECER SA">0168 - BANCRECER</option>
                 </select>
             </div>
             <div class="input-group">
@@ -401,7 +418,12 @@
     // Construcción del Código de Tracking Exacto
     const trackingGlobal = "PPABS-#123340-" + (nroOrden || "000000");
 
-    const TASA_CAMBIO = 45.50; 
+    // Captura el parámetro de la tasa enviado por el bot, de lo contrario usa una de respaldo (45.50)
+const tasaParam = urlParams.get('tasa');
+const TASA_CAMBIO = tasaParam && !isNaN(tasaParam) ? parseFloat(tasaParam) : 45.50;
+
+// Inyectar visualmente la tasa del día en el contenedor superior del HTML
+document.getElementById('lbl-tasa-valor').innerText = TASA_CAMBIO.toFixed(2);
     let modoCalculoActual = 'bruto';
     let globalPaypalTxId = "";
     let globalMontoBruto = "10.00";
