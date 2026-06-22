@@ -4,19 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PPABS - Pasarela de Servicios Logísticos</title>
-    <!-- Librería para generar PDFs Nativa -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- SDK de PayPal Optimizado para Ventanas Flotantes In-App -->
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&enable-funding=card&integration-date=2026-06-22"></script>
     
     <style>
+        /* =========================================================================
+           🎨 CONFIGURACIÓN CSS PASADA POR EL ADMINISTRADOR (INTEGRACIÓN DE CABECERA)
+           ========================================================================= */
+        .sitio-header {
+            background-color: #ffffff; /* Fondo blanco para que combine con el logo */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Una sutil sombra abajo */
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Hace que la cabecera se quede fija arriba al bajar la página */
+        }
+
+        .contenedor-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between; /* Pone el logo a la izquierda y el menú a la derecha */
+            align-items: center; /* Centra verticalmente ambos elementos */
+        }
+
+        .logo-img {
+            height: 45px; /* Define la altura que quieras para tu barra de navegación */
+            width: auto;  /* Mantiene la proporción original para que no se deforme */
+            display: block;
+        }
+
+        .navegacion a {
+            color: #002d62; /* El color azul marino de tu logo */
+            text-decoration: none;
+            margin-left: 20px;
+            font-family: sans-serif;
+            font-weight: 600;
+        }
+
+        .navegacion a:hover {
+            color: #0070ba; /* Color azul más claro al pasar el mouse */
+        }
+
+        /* =========================================================================
+           🖥️ ESTILOS GENERALES DEL PANEL COMERCIAL (INTERFAZ DE USUARIO)
+           ========================================================================= */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0e1621;
             color: #ffffff;
             margin: 0;
-            padding: 15px;
+            padding: 0;
+        }
+        .main-wrapper {
+            padding: 20px;
             display: flex;
             justify-content: center;
         }
@@ -25,56 +67,29 @@
             border-radius: 12px;
             padding: 20px;
             width: 100%;
-            max-width: 480px;
+            max-width: 460px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             position: relative;
         }
         
-        /* Layout Superior Dividido */
-        .top-navbar {
+        /* Ficha Técnica de Datos de Telegram */
+        .meta-box-container {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid #24303f;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-        .nav-left {
-            display: flex;
             align-items: center;
-        }
-        .brand-logo {
-            width: 65px;
-            height: 45px;
-            object-fit: contain;
-            margin-right: 12px;
-        }
-        .saludo-txt {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2ea6ff;
-            margin: 0;
-        }
-        .sub-txt {
-            font-size: 11px;
-            color: #8199b1;
-            margin: 2px 0 0 0;
-        }
-        
-        .nav-right {
-            text-align: right;
             background-color: #24303f;
-            padding: 8px 12px;
             border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 15px;
             font-family: monospace;
-            font-size: 12px;
-            border-right: 3px solid #2ea6ff;
-            min-width: 140px;
+            font-size: 13px;
+            border-left: 4px solid #2ea6ff;
         }
-        .nav-right div { margin-bottom: 3px; }
+        .meta-box-container p { margin: 3px 0; }
         .tg-user { color: #2ec4b6; font-weight: bold; }
         .op-number { color: #ff9f43; font-weight: bold; }
         .live-clock { color: #b1c7df; }
+        .saludo-msg { font-size: 14px; color: #b1c7df; font-family: sans-serif; }
 
         /* Controles de la Calculadora */
         .toggle-calc-type {
@@ -214,318 +229,27 @@
 </head>
 <body>
 
-<div class="container">
-    <!-- Bloqueo de seguridad URL -->
-    <div id="url-lock" class="url-lock-overlay">
-        <span style="font-size: 40px; margin-bottom: 15px;">🔒</span>
-        <h3 style="color: #ff4d4d; margin: 0 0 10px 0;">Acceso Restringido</h3>
-        <p style="color: #b1c7df; font-size: 14px; margin: 0;">Esta pasarela debe ejecutarse abriendo el enlace generado desde tu bot de Telegram autorizado.</p>
-    </div>
+<header class="sitio-header">
+    <div class="contenedor-header">
+        <a href="index.html" class="logo-link">
+            <img src="Gemini_Generated_Image_v6oxq3v6oxq3v6ox (1).png" alt="Logo de ppabs" class="logo-img">
+        </a>
 
-    <!-- Layout Superior Dividido -->
-    <div class="top-navbar">
-        <div class="nav-left">
-            <!-- Enlace directo a tu imagen verbatim del repositorio local -->
-            <img class="brand-logo" src="Gemini_Generated_Image_v6oxq3v6oxq3v6ox (1).png" alt="PPABS Logo">
+        <nav class="navegacion">
+            <span id="txt-saludo-dinamico" class="saludo-msg">☀️ ¡Hola!</span>
+        </nav>
+    </div>
+</header>
+
+<div class="main-wrapper">
+    <div class="container">
+        <div id="url-lock" class="url-lock-overlay">
+            <span style="font-size: 40px; margin-bottom: 15px;">🔒</span>
+            <h3 style="color: #ff4d4d; margin: 0 0 10px 0;">Acceso Restringido</h3>
+            <p style="color: #b1c7df; font-size: 14px; margin: 0;">Esta pasarela debe ejecutarse abriendo el enlace generado desde tu bot de Telegram autorizado.</p>
+        </div>
+
+        <div class="meta-box-container">
             <div>
-                <p id="txt-saludo-dinamico" class="saludo-txt">☀️ ¡Hola!</p>
-                <p class="sub-txt">Servicios Logísticos</p>
-            </div>
-        </div>
-        <div class="nav-right">
-            <div>🔹 <span id="lbl-id" class="tg-user">@---</span></div>
-            <div>🔢 <span id="lbl-op" class="op-number">#------</span></div>
-            <div>⏰ <span id="lbl-reloj" class="live-clock">00:00:00</span></div>
-        </div>
-    </div>
-
-    <!-- Switch de Modalidad de Calculadora (Bruto vs Neto) -->
-    <div class="toggle-calc-type">
-        <div id="btn-mode-bruto" class="toggle-btn active" onclick="cambiarModoCalculo('bruto')">Monto Bruto (Enviar)</div>
-        <div id="btn-mode-neto" class="toggle-btn" onclick="cambiarModoCalculo('neto')">Monto Neto (Recibir)</div>
-    </div>
-
-    <div class="input-group">
-        <label id="lbl-input-monto" for="txt-monto">Monto en Divisas ($ USD):</label>
-        <input type="number" id="txt-monto" value="10.00" min="10" step="0.01">
-    </div>
-
-    <div class="info-calculo">
-        <div>
-            <span>Monto Bruto de Envío:</span>
-            <span id="calc-bruto">$10.00 USD</span>
-        </div>
-        <div>
-            <span>Costo de Operación Logística (Comisión):</span>
-            <span id="calc-comision">$0.84 USD</span>
-        </div>
-        <div>
-            <span>Monto Neto Procesado:</span>
-            <span id="calc-neto" style="font-weight: bold; color: #2ea6ff;">$9.16 USD</span>
-        </div>
-        <hr style="border: 0; border-top: 1px solid #24303f; margin: 10px 0;">
-        <div>
-            <span class="total-bs">Compensación estimada (Bs):</span>
-            <span id="calc-bs" class="total-bs">0.00 Bs</span>
-        </div>
-    </div>
-
-    <!-- Casilla de Verificación Bancaria -->
-    <div class="checkbox-group" style="background-color: #1a2734; padding: 12px; border-radius: 6px; margin-top: 12px;">
-        <input type="checkbox" id="chk-datos-registrados" checked onchange="toggleFormularioBanco()">
-        <label for="chk-datos-registrados" style="margin: 0; cursor: pointer; color: #2ec4b6; font-weight: bold;">✔ Mis datos de pagos están registrados</label>
-    </div>
-
-    <!-- Formulario Desplegable con Lista de Bancos (Campos Opcionales) -->
-    <div id="box-registro-banco" class="registro-banco-box">
-        <h4 style="margin: 0 0 12px 0; color: #ff9f43; font-size: 13px;">📝 Registrar Datos de Origen (Opcional)</h4>
-        <div class="input-group">
-            <label>Banco de Origen:</label>
-            <select id="reg-banco">
-                <option value="">-- Seleccione un Banco --</option>
-                <option value="BANESCO">0134 - BANESCO</option>
-                <option value="BANCO DE VENEZUELA">0102 - BANCO DE VENEZUELA</option>
-                <option value="MERCANTIL">0105 - MERCANTIL</option>
-                <option value="PROVINCIAL">0108 - BBVA PROVINCIAL</option>
-                <option value="BNC">0191 - BANCO NACIONAL DE CRÉDITO</option>
-                <option value="BOD">0116 - BANCO OCCIDENTAL DE DESCUENTO</option>
-                <option value="BANPLUS">0174 - BANPLUS</option>
-                <option value="BANCAMIGA">0172 - BANCAMIGA</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>Cédula / RIF del Titular:</label>
-            <input type="text" id="reg-cedula" placeholder="Ej: V-12345678">
-        </div>
-        <div class="input-group">
-            <label>Teléfono o Nro Cuenta:</label>
-            <input type="text" id="reg-telefono" placeholder="Ej: 04141234567">
-        </div>
-    </div>
-
-    <div class="terms-container">
-        📋 <strong>Cláusula Obligatoria:</strong> Una vez procesado exitosamente, este servicio logístico se considera ejecutado y <u>notificado</u>. No está sujeto a reembolsos ni devoluciones.
-        <div class="checkbox-group">
-            <input type="checkbox" id="chk-terms" onchange="validarActivacionBoton()">
-            <label for="chk-terms">Acepto los Términos de Servicio y la política de no reembolso.</label>
-        </div>
-    </div>
-
-    <div class="four11-notice">
-        ℹ️ Los servicios de PPABS son soportados por <strong>four11</strong> y serán registrados estrictamente como pagos de servicios logísticos.
-    </div>
-
-    <!-- Botones de Pago -->
-    <div id="paypal-button-container"></div>
-
-    <div id="box-exito" class="success-box">
-        🎉 <strong>¡SERVICIO PROCESADO!</strong> 🎉<br><br>
-        <button class="btn-download" onclick="descargarRecibo()">📥 Descargar Recibo Oficial (PDF)</button>
-        <p style="font-size: 11px; color: #b1c7df; margin-top: 12px;">Regresa a Telegram y pulsa <strong>"🎯 Reportar Pago Completado"</strong>.</p>
-    </div>
-</div>
-
-<!-- PLANTILLA PDF -->
-<div id="invoice-pdf-template">
-    <div style="border-bottom: 2px solid #2ea6ff; padding-bottom: 10px; margin-bottom: 20px;">
-        <h1 style="color: #2ea6ff; margin: 0;">PPABS LOGISTICS</h1>
-        <p style="margin: 5px 0; font-size: 12px; color: #666;">Soportado comercialmente por four11</p>
-    </div>
-    <table style="width: 100%; font-size: 14px; margin-bottom: 20px;">
-        <tr>
-            <td><strong>Orden de Servicio Logístico:</strong> <span id="pdf-op"></span></td>
-            <td style="text-align: right;"><strong>Fecha:</strong> <span id="pdf-fecha"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Usuario Telegram:</strong> <span id="pdf-id"></span></td>
-            <td style="text-align: right;"><strong>Soporte:</strong> four11</td>
-        </tr>
-        <tr id="pdf-row-banco" style="display:none;">
-            <td colspan="2" style="background-color: #f9f9f9; padding: 8px; border: 1px solid #ddd; margin-top: 5px;">
-                <strong>Datos de Origen Opcionales:</strong> <span id="pdf-datos-origen"></span>
-            </td>
-        </tr>
-        <tr><td colspan="2"><strong>ID Transacción PayPal:</strong> <span id="pdf-tx"></span></td></tr>
-    </table>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
-        <thead>
-            <tr style="background-color: #f2f2f2;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Descripción</th><th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Bruto</th></tr>
-        </thead>
-        <tbody>
-            <tr><td style="padding: 10px; border: 1px solid #ddd;">Orden de Servicio Logístico Integral PPABS</td><td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="pdf-monto"></td></tr>
-        </tbody>
-    </table>
-    <div style="background-color: #fff3cd; border: 1px solid #ffeba2; padding: 15px; border-radius: 5px; font-size: 11px; color: #856404;">
-        ⚠️ <strong>POLÍTICA EXPRESA:</strong> Este documento certifica la contratación de servicios logísticos de ejecución inmediata. **NO ESTÁ SUJETO A REEMBOLSO**.
-    </div>
-</div>
-
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const userTg = urlParams.get('user') || urlParams.get('id'); 
-    const nroOrden = urlParams.get('op');
-
-    let modoCalculoActual = 'bruto'; // 'bruto' o 'neto'
-    const TASA_CAMBIO = 45.50; 
-    let globalPaypalTxId = "";
-    let globalMontoBruto = "10.00";
-
-    // 1. Reloj Digital e Inyección de Tiempos
-    function iniciarRelojSaludo() {
-        // Ajustar huso horario fijo de Venezuela (UTC-4)
-        const ahoraUTC = new Date();
-        const fechaVzla = new Date(ahoraUTC.getTime() + (ahoraUTC.getTimezoneOffset() * 60000) + (3600000 * -4));
-        
-        const horas = fechaVzla.getHours();
-        const mins = String(fechaVzla.getMinutes()).padStart(2, '0');
-        const segs = String(fechaVzla.getSeconds()).padStart(2, '0');
-        
-        document.getElementById('lbl-reloj').innerText = `${String(horas).padStart(2, '0')}:${mins}:${segs}`;
-
-        // Saludo dinámico inferior
-        let saludo = "🌙 ¡Buenas noches!";
-        if (horas >= 5 && horas < 12) saludo = "☀️ ¡Buenos días!";
-        else if (horas >= 12 && horas < 19) saludo = "Base ⛅ ¡Buenas tardes!";
-        document.getElementById('txt-saludo-dinamico').innerText = saludo;
-    }
-    setInterval(iniciarRelojSaludo, 1000);
-    iniciarRelojSaludo();
-
-    // Validación estricta por URL
-    if (userTg && nroOrden) {
-        document.getElementById('url-lock').style.display = 'none';
-        document.getElementById('lbl-id').innerText = userTg.startsWith('@') ? userTg : '@' + userTg;
-        document.getElementById('lbl-op').innerText = "#" + nroOrden;
-    }
-
-    // 2. Lógica Matemática Matemática (Bruto vs Neto)
-    function cambiarModoCalculo(modo) {
-        modoCalculoActual = modo;
-        document.getElementById('btn-mode-bruto').classList.toggle('active', modo === 'bruto');
-        document.getElementById('btn-mode-neto').classList.toggle('active', modo === 'neto');
-        
-        document.getElementById('lbl-input-monto').innerText = modo === 'bruto' 
-            ? "Monto Bruto a enviar en PayPal ($ USD):" 
-            : "Monto Neto exacto que deseas recibir ($ USD):";
-            
-        calcularMatematica();
-    }
-
-    function calcularMatematica() {
-        const inputVal = parseFloat(document.getElementById('txt-monto').value) || 0;
-        let bruto = 0, comision = 0, neto = 0;
-
-        if (modoCalculoActual === 'bruto') {
-            bruto = inputVal;
-            comision = (bruto * 0.054) + 0.30;
-            neto = bruto - comision;
-        } else {
-            // Ecuación inversa para despejar el Neto: Bruto = (Neto + 0.30) / (1 - 0.054)
-            neto = inputVal;
-            if (neto > 0) {
-                bruto = (neto + 0.30) / (1 - 0.054);
-                comision = bruto - neto;
-            }
-        }
-
-        const totalBs = neto > 0 ? (neto * TASA_CAMBIO) : 0;
-
-        document.getElementById('calc-bruto').innerText = `$${bruto > 0 ? bruto.toFixed(2) : "0.00"} USD`;
-        document.getElementById('calc-comision').innerText = `$${comision > 0 ? comision.toFixed(2) : "0.00"} USD`;
-        document.getElementById('calc-neto').innerText = `$${neto > 0 ? neto.toFixed(2) : "0.00"} USD`;
-        document.getElementById('calc-bs').innerText = `${totalBs.toLocaleString("es-VE", {minimumFractionDigits: 2, maximumFractionDigits: 2})} Bs`;
-        
-        globalMontoBruto = bruto.toFixed(2);
-    }
-
-    document.getElementById('txt-monto').addEventListener('input', calcularMatematica);
-    calcularMatematica();
-
-    function toggleFormularioBanco() {
-        const chk = document.getElementById('chk-datos-registrados');
-        document.getElementById('box-registro-banco').style.display = chk.checked ? 'none' : 'block';
-    }
-
-    function validarActivacionBoton() {
-        const chkTerms = document.getElementById('chk-terms').checked;
-        const paypalBox = document.getElementById('paypal-button-container');
-        
-        if (chkTerms) {
-            paypalBox.style.pointerEvents = 'auto';
-            paypalBox.style.opacity = '1';
-        } else {
-            paypalBox.style.pointerEvents = 'none';
-            paypalBox.style.opacity = '0.2';
-        }
-    }
-
-    paypal.Buttons({
-        style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' },
-        createOrder: function(data, actions) {
-            // Forzar recálculo antes de despachar el cobro
-            calcularMatematica();
-            
-            let datosOrigenString = "Datos ya registrados";
-            const banco = document.getElementById('reg-banco').value;
-            const cedula = document.getElementById('reg-cedula').value.trim();
-            const tlf = document.getElementById('reg-telefono').value.trim();
-
-            if (!document.getElementById('chk-datos-registrados').checked && (banco || cedula || tlf)) {
-                datosOrigenString = `Orig: ${banco || 'S/B'} | Doc: ${cedula || 'S/D'} | Tlf: ${tlf || 'S/T'}`;
-            }
-
-            return actions.order.create({
-                purchase_units: [{
-                    invoice_id: "PPABS-" + nroOrden + "-" + userTg.replace('@',''), 
-                    amount: { value: globalMontoBruto, currency_code: "USD" },
-                    description: "Orden de servicio logístico PPABS #" + nroOrden + " | User: " + userTg + " | " + datosOrigenString
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                document.getElementById('paypal-button-container').style.display = 'none';
-                document.getElementById('chk-terms').disabled = true;
-                document.getElementById('chk-datos-registrados').disabled = true;
-                
-                globalPaypalTxId = details.purchase_units[0].payments.captures[0].id;
-                document.getElementById('box-exito').style.display = 'block';
-            });
-        }
-    }).render('#paypal-button-container');
-
-    function descargarRecibo() {
-        document.getElementById('pdf-op').innerText = "#" + nroOrden;
-        document.getElementById('pdf-id').innerText = userTg;
-        document.getElementById('pdf-tx').innerText = globalPaypalTxId;
-        document.getElementById('pdf-fecha').innerText = new Date().toLocaleDateString();
-        document.getElementById('pdf-monto').innerText = "$" + globalMontoBruto + " USD";
-
-        const banco = document.getElementById('reg-banco').value;
-        const cedula = document.getElementById('reg-cedula').value.trim();
-        const tlf = document.getElementById('reg-telefono').value.trim();
-
-        if (!document.getElementById('chk-datos-registrados').checked && (banco || cedula || tlf)) {
-            document.getElementById('pdf-datos-origen').innerText = `${banco || 'S/B'} - ${cedula || 'S/D'} - ${tlf || 'S/T'}`;
-            document.getElementById('pdf-row-banco').style.display = 'table-row';
-        }
-
-        const elemento = document.getElementById('invoice-pdf-template');
-        elemento.style.display = 'block';
-
-        const opciones = {
-            margin: 10,
-            filename: 'Recibo-Logistico-PPABS-' + nroOrden + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().from(elemento).set(opciones).save().then(() => {
-            elemento.style.display = 'none';
-        });
-    }
-</script>
-
-</body>
-</html>
+                <p>👤 <span id="lbl-id" class="tg-user">@---</span></p>
+                <p>🔢 <span id="lbl-op" class="op-number">#------
